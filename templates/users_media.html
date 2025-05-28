@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('media.title') }}{% endblock %}
+
+{% block content %}
+<style>
+/* Стили для заголовков таблицы */
+.table thead th {
+    background: #4e73df !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.85rem !important;
+    padding: 1rem 0.75rem !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+}
+
+.table thead th:first-child {
+    border-top-left-radius: 0.5rem !important;
+}
+
+.table thead th:last-child {
+    border-top-right-radius: 0.5rem !important;
+}
+
+/* Стили для медиа статистики */
+.media-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.media-count {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.media-size {
+    background: #f8f9fa;
+    color: #495057;
+    padding: 0.3rem 0.8rem;
+    border-radius: 2rem;
+    font-weight: 500;
+    font-size: 0.85rem;
+    border: 1px solid #dee2e6;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.media-progress {
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 0.25rem;
+}
+
+.media-progress-bar {
+    height: 100%;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+}
+
+/* Анимация загрузки */
+.loading-row {
+    text-align: center;
+    padding: 2rem;
+}
+
+.loading-spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid #f3f4f6;
+    border-top-color: #4e73df;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+
+<div class="container-fluid fade-in-up">
+    <!-- Заголовок страницы -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 text-gradient">
+                    <i class="bi bi-file-earmark-play me-2"></i>
+                    {{ t('media.title') }}
+                </h1>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-success" onclick="exportUsersMedia()">
+                        <i class="bi bi-download me-1"></i>
+                        {{ t('media.csv_export') }}
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="refreshMedia()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>
+                        {{ t('dashboard.refresh') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика медиа -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <div class="p-2 rounded-circle bg-primary bg-opacity-10">
+                            <i class="bi bi-file-earmark-play text-primary fs-4"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-1">{{ media_stats.total_media_files or 0 }}</h3>
+                    <p class="text-muted mb-0 small">{{ t('media.total_files') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <div class="p-2 rounded-circle bg-success bg-opacity-10">
+                            <i class="bi bi-hdd text-success fs-4"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-1">{{ media_stats.total_media_size_formatted or '0 B' }}</h3>
+                    <p class="text-muted mb-0 small">{{ t('media.total_size') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <div class="p-2 rounded-circle bg-info bg-opacity-10">
+                            <i class="bi bi-people text-info fs-4"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-1">{{ total_users or 0 }}</h3>
+                    <p class="text-muted mb-0 small">{{ t('media.users_with_media') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Поиск и пагинация -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label">{{ t('forms.search') }}</label>
+                            <div class="search-box">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="searchInput"
+                                       value="{{ search }}"
+                                       placeholder="{{ t('media.search_placeholder') }}"
+                                       onkeyup="handleSearchKeyup(event)">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">{{ t('pagination.rows_per_page') }}</label>
+                            <select class="form-select" onchange="changeLimit(this.value)">
+                                <option value="10" {% if limit == 10 %}selected{% endif %}>10</option>
+                                <option value="25" {% if limit == 25 %}selected{% endif %}>25</option>
+                                <option value="50" {% if limit == 50 %}selected{% endif %}>50</option>
+                                <option value="100" {% if limit == 100 %}selected{% endif %}>100</option>
+                                <option value="500" {% if limit == 500 %}selected{% endif %}>500</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-primary me-2" onclick="applyFilters()">
+                                <i class="bi bi-search me-1"></i>
+                                {{ t('forms.search') }}
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">
+                                <i class="bi bi-x-circle me-1"></i>
+                                {{ t('forms.clear') }}
+                            </button>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            {% if total > 0 %}
+                            <small class="text-muted">
+                                {{ t('pagination.showing') }} {{ ((current_page - 1) * limit + 1) if total > 0 else 0 }}-{{ [current_page * limit, total] | min }} {{ t('pagination.of') }} {{ total }} {{ t('pagination.entries') }}
+                            </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Список пользователей с медиа -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-people me-2"></i>
+                        {{ t('media.users_list') }}
+                        {% if total %}
+                        <span class="badge bg-primary ms-2">{{ total }}</span>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if users_data.users %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>{{ t('users.user_id') }}</th>
+                                    <th>{{ t('users.display_name') }}</th>
+                                    <th class="text-center">{{ t('media.media_count') }}</th>
+                                    <th class="text-end">{{ t('media.media_length') }}</th>
+                                    <th class="text-center">{{ t('forms.actions') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users_data.users %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar me-3">
+                                                {{ user.displayname[0].upper() if user.displayname else user.name[0].upper() }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">{{ user.name }}</div>
+                                                {% if user.admin %}
+                                                <span class="badge bg-warning text-dark">{{ t('users.admin') }}</span>
+                                                {% endif %}
+                                                {% if user.deactivated %}
+                                                <span class="badge bg-secondary">{{ t('users.deactivated') }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>{{ user.displayname or '-' }}</div>
+                                        {% if user.creation_ts %}
+                                        <small class="text-muted">{{ t('users.created') }}: {{ user.creation_ts|datetime_format }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="media-count">{{ user.media_count or 0 }}</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="media-stat justify-content-end">
+                                            <span class="media-size">
+                                                {% if user.media_length %}
+                                                {{ (user.media_length / 1024 / 1024) | round(1) }} MB
+                                                {% else %}
+                                                0 B
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        {% if user.media_count > 0 %}
+                                        <div class="media-progress">
+                                            <div class="media-progress-bar" style="width: {{ (user.media_count / 100 * 10) if user.media_count < 100 else 100 }}%"></div>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if user.media_count > 0 %}
+                                        <button type="button" 
+                                                class="btn btn-primary btn-sm" 
+                                                onclick="viewUserMedia('{{ user.name }}')"
+                                                title="{{ t('media.view_media') }}">
+                                            <i class="bi bi-eye me-1"></i>
+                                            {{ t('media.view_media_short') }}
+                                        </button>
+                                        {% else %}
+                                        <span class="text-muted small">{{ t('media.no_media') }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-file-earmark-play text-muted mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted">{{ t('media.no_users') }}</h5>
+                        {% if search %}
+                        <p class="text-muted">{{ t('messages.try_different_search') }}</p>
+                        <button type="button" class="btn btn-outline-primary" onclick="clearFilters()">
+                            {{ t('forms.show_all') }}
+                        </button>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Пагинация -->
+    {% if total > limit %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Pagination">
+                <ul class="pagination justify-content-center">
+                    <!-- Первая страница -->
+                    {% if current_page > 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="goToPage(1)">
+                            <i class="bi bi-chevron-double-left me-1"></i>
+                            {{ t('pagination.first') }}
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="goToPagePrev()">
+                            <i class="bi bi-chevron-left me-1"></i>
+                            {{ t('pagination.previous') }}
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <!-- Номера страниц -->
+                    {% set start_page = [1, current_page - 2] | max %}
+                    {% set end_page = [total_pages, current_page + 2] | min %}
+                    
+                    {% if start_page > 1 %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in range(start_page, end_page + 1) %}
+                    <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                        <a class="page-link" href="#" data-page="{{ page_num }}" onclick="goToPage(this.dataset.page)">{{ page_num }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if end_page < total_pages %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                    
+                    <!-- Следующая страница -->
+                    {% if current_page < total_pages %}
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="goToPageNext()">
+                            {{ t('pagination.next') }}
+                            <i class="bi bi-chevron-right ms-1"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="goToPageLast()">
+                            {{ t('pagination.last') }}
+                            <i class="bi bi-chevron-double-right ms-1"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let searchTimeout = null;
+
+function handleSearchKeyup(event) {
+    if (event.key === 'Enter') {
+        applyFilters();
+        return;
+    }
+    
+    // Отложенный поиск
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        applyFilters();
+    }, 500);
+}
+
+function applyFilters() {
+    const url = new URL(window.location);
+    const searchValue = document.getElementById('searchInput').value.trim();
+    
+    if (searchValue) {
+        url.searchParams.set('search', searchValue);
+    } else {
+        url.searchParams.delete('search');
+    }
+    
+    url.searchParams.set('page', '1'); // Сброс на первую страницу
+    window.location.href = url.toString();
+}
+
+function clearFilters() {
+    const url = new URL(window.location.origin + window.location.pathname);
+    const currentLimit = new URLSearchParams(window.location.search).get('limit') || '25';
+    url.searchParams.set('limit', currentLimit); // Сохраняем limit
+    window.location.href = url.toString();
+}
+
+function changeLimit(newLimit) {
+    const url = new URL(window.location);
+    url.searchParams.set('limit', newLimit);
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+}
+
+function goToPage(pageNum) {
+    const url = new URL(window.location);
+    url.searchParams.set('page', pageNum);
+    window.location.href = url.toString();
+}
+
+function goToPagePrev() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentPage = parseInt(urlParams.get('page')) || 1;
+    if (currentPage > 1) {
+        goToPage(currentPage - 1);
+    }
+}
+
+function goToPageNext() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentPage = parseInt(urlParams.get('page')) || 1;
+    goToPage(currentPage + 1);
+}
+
+function goToPageLast() {
+    // Получаем информацию о последней странице из текста на странице
+    const paginationText = document.querySelector('.text-muted');
+    if (paginationText) {
+        const matches = paginationText.textContent.match(/из (\d+)|of (\d+)/);
+        if (matches) {
+            const total = parseInt(matches[1] || matches[2]);
+            const urlParams = new URLSearchParams(window.location.search);
+            const limit = parseInt(urlParams.get('limit')) || 25;
+            const lastPage = Math.ceil(total / limit);
+            goToPage(lastPage);
+            return;
+        }
+    }
+    goToPage(9999);
+}
+
+function refreshMedia() {
+    window.location.reload();
+}
+
+function exportUsersMedia() {
+    const url = new URL('/users-media/export', window.location.origin);
+    
+    // Добавляем текущие фильтры к экспорту
+    const currentUrl = new URL(window.location);
+    for (const [key, value] of currentUrl.searchParams) {
+        if (['search'].includes(key)) {
+            url.searchParams.set(key, value);
+        }
+    }
+    
+    window.location.href = url.toString();
+}
+
+function viewUserMedia(userId) {
+    // Переход на страницу медиа пользователя
+    window.location.href = '/users/' + encodeURIComponent(userId) + '/media';
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-' + type + ' alert-dismissible fade show';
+    alertDiv.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    
+    document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.container-fluid').firstChild);
+    
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %} 

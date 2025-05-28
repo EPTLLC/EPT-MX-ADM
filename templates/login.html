@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="{{ current_locale }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('auth.login') }} - {{ t('app.name') }}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card {
+            border: none;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .language-switcher {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .language-switcher .dropdown-toggle {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 15px;
+            color: #333;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .language-switcher .dropdown-toggle:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+
+        .copyright {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .text-primary {
+            color: #667eea !important;
+        }
+
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1050;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        /* Dark theme styles for login page */
+        [data-bs-theme="dark"] body {
+            background: linear-gradient(135deg, #1a1d29 0%, #2c3e50 50%, #34495e 100%);
+        }
+        
+        [data-bs-theme="dark"] .login-card {
+            background: rgba(52, 58, 70, 0.95);
+            color: #e9ecef;
+        }
+        
+        [data-bs-theme="dark"] .text-muted {
+            color: #adb5bd !important;
+        }
+        
+        [data-bs-theme="dark"] .form-control {
+            background-color: #495057;
+            border-color: #6c757d;
+            color: #e9ecef;
+        }
+        
+        [data-bs-theme="dark"] .form-control:focus {
+            background-color: #495057;
+            border-color: #667eea;
+            color: #e9ecef;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        [data-bs-theme="dark"] .form-control::placeholder {
+            color: #adb5bd;
+        }
+        
+        [data-bs-theme="dark"] .text-primary {
+            color: #6ea8fe !important;
+        }
+        
+        [data-bs-theme="dark"] .language-switcher .dropdown-toggle {
+            background: rgba(52, 58, 70, 0.9);
+            color: #e9ecef;
+        }
+        
+        [data-bs-theme="dark"] .language-switcher .dropdown-toggle:hover {
+            background: rgba(52, 58, 70, 1);
+        }
+        
+        [data-bs-theme="dark"] .theme-toggle {
+            background: rgba(52, 58, 70, 0.9) !important;
+            color: #e9ecef !important;
+        }
+        
+        [data-bs-theme="dark"] .theme-toggle:hover {
+            background: rgba(52, 58, 70, 1) !important;
+        }
+        
+        [data-bs-theme="dark"] .dropdown-menu {
+            background-color: #343a46;
+            border-color: #495057;
+        }
+        
+        [data-bs-theme="dark"] .dropdown-item {
+            color: #e9ecef;
+        }
+        
+        [data-bs-theme="dark"] .dropdown-item:hover {
+            background-color: #495057;
+            color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Login Form -->
+    <div class="login-container">
+        <div class="card login-card">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-chat-square-dots fs-1 text-primary"></i>
+                    <h2 class="mt-3 mb-2">{{ t('app.name') }}</h2>
+                    <p class="text-muted">{{ t('auth.login_subtitle') }}</p>
+                </div>
+                
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="bi bi-person"></i> {{ t('auth.username') }}
+                        </label>
+                        <input type="text" class="form-control form-control-lg" id="username" name="username" required autofocus>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="password" class="form-label">
+                            <i class="bi bi-lock"></i> {{ t('auth.password') }}
+                        </label>
+                        <input type="password" class="form-control form-control-lg" id="password" name="password" required>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right"></i> {{ t('auth.login') }}
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <small class="text-muted">
+                        {{ t('auth.admin_only_access') }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Language Switcher -->
+    <div class="language-switcher dropdown">
+        <div class="d-flex gap-2">
+            <!-- Theme Toggle -->
+            <button class="dropdown-toggle theme-toggle" onclick="toggleTheme()" title="{{ t('settings.toggle_theme') }}" style="background: rgba(255, 255, 255, 0.9); border: none; border-radius: 25px; padding: 8px 12px; color: #333;">
+                <i class="bi bi-sun-fill" id="theme-icon"></i>
+            </button>
+            
+            <!-- Language Switcher -->
+            <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-translate"></i>
+                {% set current_locale_info = i18n.get_locale_info() %}
+                {{ current_locale_info.flag }} {{ current_locale_info.native_name }}
+            </a>
+        </div>
+        <ul class="dropdown-menu dropdown-menu-end">
+            {% for locale in available_locales %}
+            {% set locale_info = i18n.get_locale_info(locale) %}
+            <li>
+                <a class="dropdown-item {% if locale == current_locale %}active{% endif %}" 
+                   href="{{ url_for('auth.set_locale', locale=locale) }}">
+                    {{ locale_info.flag }} {{ locale_info.native_name }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Copyright -->
+    <div class="copyright">
+        <a href="{{ t('footer.website_url') }}" target="_blank" style="color: rgba(255, 255, 255, 0.8); text-decoration: none;">
+            {{ t('footer.copyright') }}
+        </a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    
+    <script>
+    // Theme switching functionality
+    function toggleTheme() {
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+    }
+    
+    function setTheme(theme) {
+        const html = document.documentElement;
+        const themeIcon = document.getElementById('theme-icon');
+        
+        if (theme === 'dark') {
+            html.setAttribute('data-bs-theme', 'dark');
+            if (themeIcon) {
+                themeIcon.className = 'bi bi-moon-fill';
+            }
+        } else {
+            html.setAttribute('data-bs-theme', 'light');
+            if (themeIcon) {
+                themeIcon.className = 'bi bi-sun-fill';
+            }
+        }
+    }
+    
+    // Initialize theme on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+    });
+    </script>
+</body>
+</html> 

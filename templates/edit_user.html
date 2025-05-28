@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('users.edit_user') }} - {{ t('app.name') }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-pencil"></i> {{ t('users.edit_user') }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('users.users') }}" class="btn btn-sm btn-secondary">
+            <i class="bi bi-arrow-left"></i> {{ t('forms.back_to_list') }}
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0">{{ t('users.user_data') }}: {{ user.name }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-person"></i> {{ t('users.user_id') }}
+                        </label>
+                        <input type="text" class="form-control" value="{{ user.name }}" readonly>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="displayname" class="form-label">
+                                    <i class="bi bi-tag"></i> {{ t('users.display_name') }}
+                                </label>
+                                <input type="text" class="form-control" id="displayname" name="displayname" 
+                                       value="{{ user.displayname or '' }}" placeholder="{{ t('users.display_name_placeholder') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="bi bi-lock"></i> {{ t('users.new_password') }}
+                                </label>
+                                <input type="password" class="form-control" id="password" name="password" 
+                                       placeholder="{{ t('users.leave_empty_no_change') }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="admin" name="admin" 
+                                           {{ 'checked' if user.admin else '' }}>
+                                    <label class="form-check-label" for="admin">
+                                        <i class="bi bi-shield-check text-danger"></i> {{ t('users.admin_rights') }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="deactivated" name="deactivated" 
+                                           {{ 'checked' if user.deactivated else '' }}>
+                                    <label class="form-check-label" for="deactivated">
+                                        <i class="bi bi-x-circle text-warning"></i> {{ t('users.deactivate_account') }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('users.users') }}" class="btn btn-secondary me-md-2">
+                            <i class="bi bi-x"></i> {{ t('forms.cancel') }}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check"></i> {{ t('forms.save_changes') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0">{{ t('users.user_information') }}</h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td><strong>{{ t('users.created') }}:</strong></td>
+                        <td>{{ user.creation_ts | datetime_format if user.creation_ts else '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>{{ t('users.last_seen') }}:</strong></td>
+                        <td>{{ user.last_seen_ts | datetime_format if user.last_seen_ts else '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>{{ t('users.user_type') }}:</strong></td>
+                        <td>{{ user.user_type or t('users.regular') }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>{{ t('users.guest') }}:</strong></td>
+                        <td>{{ t('forms.yes') if user.is_guest else t('forms.no') }}</td>
+                    </tr>
+                </table>
+                
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>{{ t('messages.warning') }}:</strong> {{ t('users.changes_immediate') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

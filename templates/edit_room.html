@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('rooms.edit') }} - {{ t('app.name') }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-pencil"></i> {{ t('rooms.edit') }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('rooms.rooms') }}" class="btn btn-sm btn-secondary">
+            <i class="bi bi-arrow-left"></i> {{ t('forms.back_to_list') }}
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0">{{ t('rooms.room_name') }}: {{ room.name or room.room_id[:30] + '...' }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-house-door"></i> {{ t('rooms.room_id') }}
+                        </label>
+                        <input type="text" class="form-control" value="{{ room.room_id }}" readonly>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">
+                                    <i class="bi bi-tag"></i> {{ t('rooms.room_name') }}
+                                </label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="{{ room.name or '' }}" placeholder="{{ t('rooms.room_name') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="topic" class="form-label">
+                                    <i class="bi bi-chat-text"></i> {{ t('rooms.topic') }}
+                                </label>
+                                <input type="text" class="form-control" id="topic" name="topic" 
+                                       value="{{ room.topic or '' }}" placeholder="{{ t('rooms.topic') }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="public" name="public" 
+                                           {{ 'checked' if room.public else '' }}>
+                                    <label class="form-check-label" for="public">
+                                        <i class="bi bi-globe text-success"></i> {{ t('rooms.public') }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="encrypted" name="encrypted" 
+                                           {{ 'checked' if room.encryption else '' }}>
+                                    <label class="form-check-label" for="encrypted">
+                                        <i class="bi bi-shield-lock text-warning"></i> {{ t('rooms.encrypted') }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('rooms.rooms') }}" class="btn btn-secondary me-md-2">
+                            <i class="bi bi-x"></i> {{ t('forms.cancel') }}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check"></i> {{ t('forms.save_changes') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0">{{ t('rooms.room_id') }}</h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td><strong>{{ t('rooms.created') }}:</strong></td>
+                        <td>{{ room.creation_ts | datetime_format if room.creation_ts else '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>{{ t('rooms.creator') }}:</strong></td>
+                        <td>
+                            {% if room.creator and room.creator != 'Unknown' %}
+                            <a href="{{ url_for('users.edit_user', user_id=room.creator) }}" 
+                               class="text-decoration-none text-primary">
+                                {{ room.creator }}
+                            </a>
+                            {% else %}
+                            {{ t('messages.unknown') }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>{{ t('rooms.members') }}:</strong></td>
+                        <td>{{ room.joined_members or 0 }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>{{ t('rooms.federated') }}:</strong></td>
+                        <td>{{ t('forms.yes') if room.federatable else t('forms.no') }}</td>
+                    </tr>
+                </table>
+                
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>{{ t('messages.warning') }}:</strong> {{ t('rooms.edit_warning') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

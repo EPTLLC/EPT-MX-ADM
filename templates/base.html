@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="{{ current_locale }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ t('app.name') }}{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='admin.css') }}" rel="stylesheet">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    {% if current_user %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('dashboard.dashboard') }}">
+                <i class="bi bi-chat-square-dots"></i> {{ t('app.name') }}
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">
+                            <i class="bi bi-speedometer2"></i> {{ t('navigation.dashboard') }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('users.users') }}">
+                            <i class="bi bi-people"></i> {{ t('navigation.users') }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('rooms.rooms') }}">
+                            <i class="bi bi-house-door"></i> {{ t('navigation.rooms') }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('spaces.spaces') }}">
+                            <i class="bi bi-grid-3x3"></i> {{ t('navigation.spaces') }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('media.users_media') }}">
+                            <i class="bi bi-file-earmark-play"></i> {{ t('media.title') }}
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <!-- Theme Toggle -->
+                    <li class="nav-item">
+                        <button class="nav-link theme-toggle" onclick="toggleTheme()" title="{{ t('settings.toggle_theme') }}">
+                            <i class="bi bi-sun-fill" id="theme-icon"></i>
+                        </button>
+                    </li>
+                    
+                    <!-- Language Switcher -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-translate"></i> 
+                            {% set current_locale_info = i18n.get_locale_info() %}
+                            {{ current_locale_info.flag }} {{ current_locale_info.native_name }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for locale in available_locales %}
+                            {% set locale_info = i18n.get_locale_info(locale) %}
+                            <li>
+                                <a class="dropdown-item {% if locale == current_locale %}active{% endif %}" 
+                                   href="{{ url_for('auth.set_locale', locale=locale) }}">
+                                    {{ locale_info.flag }} {{ locale_info.native_name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    
+                    <!-- User Menu -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" style="min-width: 250px;">
+                            <li class="dropdown-header d-flex align-items-center">
+                                <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
+                                <div>
+                                    <div class="fw-bold">{{ current_user.username }}</div>
+                                    <small class="text-muted">{{ current_user.user_id }}</small>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('users.edit_user', user_id=current_user.user_id) }}">
+                                    <i class="bi bi-person-gear me-2"></i> {{ t('users.edit_profile') }}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="showUserWhois('{{ current_user.user_id }}')">
+                                    <i class="bi bi-info-circle me-2"></i> {{ t('users.my_activity') }}
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="showMyDevices()">
+                                    <i class="bi bi-phone me-2"></i> {{ t('users.my_devices') }}
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                    <i class="bi bi-box-arrow-right me-2"></i> {{ t('auth.logout') }}
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container-fluid mt-2">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="container-fluid py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-3 bg-light border-top">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        {{ t('app.name') }} {{ t('app.version') }} {{ app_version }}
+                    </small>
+                </div>
+                <div class="col-md-6 text-end">
+                    <small class="text-muted">
+                        <a href="{{ t('footer.website_url') }}" target="_blank" style="color: inherit; text-decoration: none;">
+                        {{ t('footer.copyright') }}
+                        </a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <!-- Chart.js for statistics -->
+    <script src="{{ url_for('static', filename='vendor/chartjs/chart.min.js') }}"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='admin.js') }}"></script>
+    
+    <script>
+    function showMyDevices() {
+        // Show user's devices
+        alert('{{ t("users.devices_coming_soon") }}');
+    }
+    
+    // Global whois function if not already defined
+    if (typeof showUserWhois === 'undefined') {
+        function showUserWhois(userId) {
+            alert('{{ t("users.whois_coming_soon") }}');
+        }
+    }
+    
+    // Theme switching functionality
+    function toggleTheme() {
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+    }
+    
+    function setTheme(theme) {
+        const html = document.documentElement;
+        const themeIcon = document.getElementById('theme-icon');
+        
+        if (theme === 'dark') {
+            html.setAttribute('data-bs-theme', 'dark');
+            if (themeIcon) {
+                themeIcon.className = 'bi bi-moon-fill';
+            }
+        } else {
+            html.setAttribute('data-bs-theme', 'light');
+            if (themeIcon) {
+                themeIcon.className = 'bi bi-sun-fill';
+            }
+        }
+    }
+    
+    // Initialize theme on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+    });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html> 

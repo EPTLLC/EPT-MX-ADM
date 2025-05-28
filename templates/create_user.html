@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('users.create_user') }} - {{ t('app.name') }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-person-plus"></i> {{ t('users.create_user') }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('users.users') }}" class="btn btn-sm btn-secondary">
+            <i class="bi bi-arrow-left"></i> {{ t('forms.back_to_list') }}
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0">{{ t('users.new_user_data') }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="bi bi-person"></i> {{ t('auth.username') }} *
+                                </label>
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       placeholder="username" required>
+                                <div class="form-text">{{ t('users.domain_auto_added') }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="displayname" class="form-label">
+                                    <i class="bi bi-tag"></i> {{ t('users.display_name') }}
+                                </label>
+                                <input type="text" class="form-control" id="displayname" name="displayname" 
+                                       placeholder="{{ t('users.display_name_placeholder') }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="bi bi-lock"></i> {{ t('auth.password') }} *
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="form-text">{{ t('users.password_min_chars') }}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="admin" name="admin">
+                            <label class="form-check-label" for="admin">
+                                <i class="bi bi-shield-check text-danger"></i> {{ t('users.admin_rights') }}
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('users.users') }}" class="btn btn-secondary me-md-2">
+                            <i class="bi bi-x"></i> {{ t('forms.cancel') }}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check"></i> {{ t('users.create_user') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0">{{ t('messages.info') }}</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>{{ t('users.creation_rules') }}:</strong>
+                    <ul class="mt-2 mb-0">
+                        <li>{{ t('users.username_unique') }}</li>
+                        <li>{{ t('users.password_min_chars') }}</li>
+                        <li>{{ t('users.admin_can_manage') }}</li>
+                        <li>{{ t('users.domain_auto_added') }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

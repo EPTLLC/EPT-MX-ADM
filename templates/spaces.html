@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('spaces.title') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid fade-in-up">
+    <!-- Заголовок страницы -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 text-gradient">
+                    <i class="bi bi-grid-3x3 me-2"></i>
+                    {{ t('spaces.title') }}
+                </h1>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" onclick="refreshSpaces()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>
+                        {{ t('dashboard.refresh') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Поиск и фильтры -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3 align-items-end">
+                        <div class="col-md-6">
+                            <label class="form-label">{{ t('forms.search') }}</label>
+                            <div class="search-box">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" 
+                                       class="form-control" 
+                                       name="search" 
+                                       value="{{ search }}"
+                                       placeholder="{{ t('spaces.search_placeholder', default='Search spaces...') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search me-1"></i>
+                                {{ t('forms.search') }}
+                            </button>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            {% if search %}
+                            <a href="{{ url_for('spaces.spaces') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i>
+                                {{ t('forms.clear') }}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Список пространств -->
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning" role="alert">
+                {{ t('spaces.api_limitation_note', default='Note: Due to Synapse Admin API limitations, some spaces may be shown as regular rooms. For accurate detection, use Matrix Client API.') }}
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-grid-3x3 me-2"></i>
+                        {{ t('spaces.title') }}
+                        {% if spaces_data.total_spaces %}
+                        <span class="badge bg-primary ms-2">{{ spaces_data.total_spaces }}</span>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if spaces_data.rooms %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>{{ t('spaces.space_name') }}</th>
+                                    <th>{{ t('spaces.space_id') }}</th>
+                                    <th>{{ t('spaces.children') }}</th>
+                                    <th>{{ t('rooms.public') }}</th>
+                                    <th>{{ t('rooms.created') }}</th>
+                                    <th class="text-end">{{ t('rooms.actions') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for space in spaces_data.rooms %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="space-avatar me-2">
+                                                {% if space.avatar_url %}
+                                                <img src="{{ space.avatar_url }}" class="rounded-circle" width="32" height="32">
+                                                {% else %}
+                                                <div class="bg-info rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                    <i class="bi bi-grid-3x3 text-white"></i>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">
+                                                    {{ space.name or space.canonical_alias or space.room_id[:20] + '...' }}
+                                                </div>
+                                                {% if space.topic %}
+                                                <small class="text-muted">{{ space.topic[:50] }}{% if space.topic|length > 50 %}...{% endif %}</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <code class="text-muted small">{{ space.room_id }}</code>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ space.children_count or 0 }}</span>
+                                    </td>
+                                    <td>
+                                        {% if space.public %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-globe me-1"></i>
+                                            {{ t('rooms.public') }}
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-lock me-1"></i>
+                                            {{ t('forms.private') }}
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ space.creation_ts|datetime_format if space.creation_ts else t('messages.unknown') }}
+                                        </small>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" 
+                                                    class="btn btn-outline-primary" 
+                                                    onclick="viewSpace('{{ space.room_id }}')"
+                                                    title="{{ t('spaces.view_space') }}">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button type="button" 
+                                                    class="btn btn-outline-info" 
+                                                    onclick="viewHierarchy('{{ space.room_id }}')"
+                                                    title="{{ t('spaces.hierarchy') }}">
+                                                <i class="bi bi-diagram-3"></i>
+                                            </button>
+                                            <button type="button" 
+                                                    class="btn btn-outline-warning" 
+                                                    onclick="editSpace('{{ space.room_id }}')"
+                                                    title="{{ t('spaces.edit_space') }}">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-grid-3x3-gap-fill text-muted mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted">{{ t('spaces.no_spaces', default='No spaces found') }}</h5>
+                        {% if search %}
+                        <p class="text-muted">{{ t('messages.try_different_search') }}</p>
+                        <a href="{{ url_for('spaces.spaces') }}" class="btn btn-outline-primary">
+                            {{ t('forms.show_all') }}
+                        </a>
+                        {% else %}
+                        <p class="text-muted">{{ t('spaces.create_first', default='Create the first space to organize rooms') }}</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Пагинация -->
+    {% if spaces_data.rooms and (spaces_data.next_token or from_token) %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Pagination">
+                <ul class="pagination justify-content-center">
+                    {% if from_token %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('spaces', search=search) }}">
+                            <i class="bi bi-chevron-left me-1"></i>
+                            {{ t('pagination.first') }}
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% if spaces_data.next_token %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('spaces', search=search, from=spaces_data.next_token) }}">
+                            {{ t('pagination.next') }}
+                            <i class="bi bi-chevron-right ms-1"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Модальное окно просмотра пространства -->
+<div class="modal fade" id="spaceViewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ t('spaces.view_space') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="spaceViewContent">
+                <div class="text-center py-3">
+                    <div class="loading"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно иерархии пространства -->
+<div class="modal fade" id="hierarchyModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ t('spaces.space_hierarchy') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="hierarchyContent">
+                <div class="text-center py-3">
+                    <div class="loading"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentSpaceId = null;
+
+function refreshSpaces() {
+    window.location.reload();
+}
+
+function viewSpace(spaceId) {
+    currentSpaceId = spaceId;
+    const modal = new bootstrap.Modal(document.getElementById('spaceViewModal'));
+    
+    // Показываем модальное окно с загрузкой
+    document.getElementById('spaceViewContent').innerHTML = 
+        '<div class="text-center py-3"><div class="loading"></div></div>';
+    modal.show();
+    
+    // Загружаем данные пространства
+    fetch('/api/spaces/' + spaceId + '/details')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displaySpaceDetails(data.space);
+            } else {
+                document.getElementById('spaceViewContent').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + data.error + '</div>';
+            }
+        })
+        .catch(error => {
+            document.getElementById('spaceViewContent').innerHTML = 
+                '<div class="alert alert-danger">Network error</div>';
+        });
+}
+
+function displaySpaceDetails(space) {
+    const content = 
+        '<div class="row">' +
+            '<div class="col-md-6">' +
+                '<h6>Space Name</h6>' +
+                '<p>' + (space.name || 'Not specified') + '</p>' +
+                '<h6>Description</h6>' +
+                '<p>' + (space.topic || 'Not specified') + '</p>' +
+                '<h6>Space ID</h6>' +
+                '<code class="small">' + space.room_id + '</code>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+                '<h6>Child Rooms</h6>' +
+                '<p><span class="badge bg-info">' + (space.children ? space.children.length : 0) + '</span></p>' +
+                '<h6>Created</h6>' +
+                '<p>' + (space.creation_ts ? new Date(space.creation_ts).toLocaleString() : 'Unknown') + '</p>' +
+            '</div>' +
+        '</div>';
+    
+    if (space.children && space.children.length > 0) {
+        content += '<hr><h6>Child Rooms:</h6><ul>';
+        space.children.forEach(child => {
+            content += '<li><code>' + child.room_id + '</code></li>';
+        });
+        content += '</ul>';
+    }
+    
+    document.getElementById('spaceViewContent').innerHTML = content;
+}
+
+function viewHierarchy(spaceId) {
+    const modal = new bootstrap.Modal(document.getElementById('hierarchyModal'));
+    
+    // Показываем модальное окно с загрузкой
+    document.getElementById('hierarchyContent').innerHTML = 
+        '<div class="text-center py-3"><div class="loading"></div></div>';
+    modal.show();
+    
+    // Загружаем иерархию
+    fetch('/api/spaces/' + spaceId + '/hierarchy')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayHierarchy(data.hierarchy);
+            } else {
+                document.getElementById('hierarchyContent').innerHTML = 
+                    '<div class="alert alert-danger">Error: ' + data.error + '</div>';
+            }
+        })
+        .catch(error => {
+            document.getElementById('hierarchyContent').innerHTML = 
+                '<div class="alert alert-danger">Network error</div>';
+        });
+}
+
+function displayHierarchy(hierarchy) {
+    // Упрощенное отображение иерархии
+    let content = '<div class="hierarchy-tree">';
+    
+    if (hierarchy.rooms && hierarchy.rooms.length > 0) {
+        hierarchy.rooms.forEach(room => {
+            const isSpace = room.room_type === 'm.space';
+            const icon = isSpace ? 'bi-grid-3x3' : 'bi-house-door';
+            const badgeClass = isSpace ? 'bg-info' : 'bg-primary';
+            
+            content += 
+                '<div class="hierarchy-item p-2 border rounded mb-2">' +
+                    '<i class="bi ' + icon + ' me-2"></i>' +
+                    '<strong>' + (room.name || room.canonical_alias || room.room_id) + '</strong>' +
+                    '<span class="badge ' + badgeClass + ' ms-2">' + (isSpace ? 'Space' : 'Room') + '</span>' +
+                    '<br><small class="text-muted">' + room.room_id + '</small>' +
+                '</div>';
+        });
+    } else {
+        content += '<p class="text-muted">Empty hierarchy</p>';
+    }
+    
+    content += '</div>';
+    
+    document.getElementById('hierarchyContent').innerHTML = content;
+}
+
+function editSpace(spaceId) {
+    // Переход на страницу редактирования
+    window.location.href = '/spaces/' + spaceId + '/edit';
+}
+</script>
+{% endblock %} 

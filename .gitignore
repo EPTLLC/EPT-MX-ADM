@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+
+# Logs
+logs/
+*.log
+
+# Configs
+config/settings.py
+.env
+
+# Temp files
+*.bak
+*.swp
+*~
+
+# IDE
+.idea/
+.vscode/
+
+# Static vendor (if downloaded)
+static/vendor/
+
+# OS-specific
+.DS_Store
+Thumbs.db

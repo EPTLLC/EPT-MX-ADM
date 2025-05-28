@@ -1,0 +1,73 @@
+{
+  "name": "EPT-MX-ADM",
+  "version": "0.0.1-beta",
+  "description": "Matrix Synapse Administration Panel (Beta)",
+  "author": "EasyProTech (EPTLLC)",
+  "license": "MIT",
+  "main": "app.py",
+  "keywords": ["matrix", "synapse", "admin", "panel", "beta"],
+  "homepage": "https://github.com/EPTLLC/EPT-MX-ADM",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EPTLLC/EPT-MX-ADM.git"
+  },
+  "python": {
+    "version": ">=3.10",
+    "dependencies": [
+      "Flask>=2.3.0",
+      "requests>=2.31.0"
+    ]
+  },
+  "features": [
+    "User management (partial)",
+    "Room administration (beta)", 
+    "Media management (beta)",
+    "Multi-language support (partial)",
+    "Professional UI (in progress)"
+  ],
+  
+  "structure": {
+    "app.py": "Main Flask application",
+    "config/": "Settings and configuration",
+    "modules/": "Functionality modules (auth, users, rooms, analytics)",
+    "utils/": "Helper utilities (logger, api_client)",
+    "templates/": "HTML templates",
+    "static/": "CSS, JS and media files",
+    "requirements.txt": "Python dependencies"
+  },
+  
+  "commands": {
+    "start": "./start.sh or python3 app.py",
+    "install": "pip3 install -r requirements.txt",
+    "logs": "tail -f debug.log"
+  },
+  
+  "urls": {
+    "app": "http://localhost:5000",
+    "login": "http://localhost:5000/login",
+    "dashboard": "http://localhost:5000/dashboard",
+    "users": "http://localhost:5000/users",
+    "rooms": "http://localhost:5000/rooms"
+  },
+  
+  "config": {
+    "synapse_url": "http://localhost:8008",
+    "admin_api": "/_synapse/admin",
+    "client_api": "/_matrix/client",
+    "debug": true,
+    "log_file": "debug.log"
+  },
+  
+  "dependencies": {
+    "flask": "2.3+",
+    "requests": "2.28+",
+    "jinja2": "3.1+"
+  },
+  
+  "modules_info": {
+    "auth": "Authorization and session management",
+    "users": "CRUD operations with users",
+    "rooms": "Room management and state handling",
+    "analytics": "Server statistics and metrics"
+  }
+} 

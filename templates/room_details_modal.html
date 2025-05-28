@@ -1,0 +1,279 @@
+<!-- Модальное окно детального просмотра комнаты -->
+<div class="modal fade" id="roomDetailsModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-house-door me-2"></i>
+                    {{ t('rooms.view') }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <!-- Навигация по табам -->
+                <nav class="border-bottom">
+                    <div class="nav nav-tabs" id="roomDetailsTabs" role="tablist">
+                        <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic-panel" type="button" role="tab">
+                            <i class="bi bi-list-ul me-1"></i>
+                            BASIC
+                        </button>
+                        <button class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details-panel" type="button" role="tab">
+                            <i class="bi bi-search me-1"></i>
+                            DETAILS
+                        </button>
+                        <button class="nav-link" id="members-tab" data-bs-toggle="tab" data-bs-target="#members-panel" type="button" role="tab">
+                            <i class="bi bi-people me-1"></i>
+                            MEMBERS
+                        </button>
+                        <button class="nav-link" id="permissions-tab" data-bs-toggle="tab" data-bs-target="#permissions-panel" type="button" role="tab">
+                            <i class="bi bi-eye me-1"></i>
+                            PERMISSIONS
+                        </button>
+                        <button class="nav-link" id="state-events-tab" data-bs-toggle="tab" data-bs-target="#state-events-panel" type="button" role="tab">
+                            <i class="bi bi-calendar me-1"></i>
+                            STATE EVENTS
+                        </button>
+                        <button class="nav-link" id="forward-extremities-tab" data-bs-toggle="tab" data-bs-target="#forward-extremities-panel" type="button" role="tab">
+                            <i class="bi bi-skip-forward me-1"></i>
+                            FORWARD EXTREMITIES
+                        </button>
+                    </div>
+                </nav>
+
+                <!-- Содержимое табов -->
+                <div class="tab-content" id="roomDetailsTabContent">
+                    <!-- BASIC tab -->
+                    <div class="tab-pane fade show active p-4" id="basic-panel" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Room-ID</h6>
+                                <p><code class="small" id="room-id-basic"></code></p>
+                                
+                                <h6 class="text-muted">{{ t('rooms.room_name') }}</h6>
+                                <p id="room-name-basic">-</p>
+                                
+                                <h6 class="text-muted">{{ t('rooms.topic') }}</h6>
+                                <p id="room-topic-basic">{{ t('messages.not_specified') }}</p>
+                                
+                                <h6 class="text-muted">Alias</h6>
+                                <p id="room-alias-basic">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">{{ t('rooms.creator') }}</h6>
+                                <p>
+                                    <a href="#" id="room-creator-basic" class="text-decoration-none">-</a>
+                                </p>
+                                
+                                <h6 class="text-muted">{{ t('rooms.created') }}</h6>
+                                <p id="room-created-basic">{{ t('messages.unknown') }}</p>
+                                
+                                <h6 class="text-muted">{{ t('rooms.room_version') }}</h6>
+                                <p><span class="badge bg-light text-dark" id="room-version-basic">1</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DETAILS tab -->
+                    <div class="tab-pane fade p-4" id="details-panel" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">{{ t('rooms.members') }}</h6>
+                                <p><span class="badge bg-info" id="room-members-details">0</span></p>
+                                
+                                <h6 class="text-muted">{{ t('rooms.local_members') }}</h6>
+                                <p><span class="badge bg-secondary" id="room-local-members-details">0</span></p>
+                                
+                                <h6 class="text-muted">Local devices</h6>
+                                <p><span class="badge bg-primary" id="room-local-devices">0</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">{{ t('rooms.state_events') }} / {{ t('rooms.complexity') }}</h6>
+                                <p><span class="badge bg-info" id="room-state-events-details">0</span></p>
+                                
+                                <h6 class="text-muted">{{ t('rooms.room_version') }}</h6>
+                                <p><span class="badge bg-light text-dark" id="room-version-details">1</span></p>
+                                
+                                <h6 class="text-muted">{{ t('rooms.encrypted') }}</h6>
+                                <p id="room-encryption-details">
+                                    <span class="badge bg-secondary">{{ t('forms.no') }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MEMBERS tab -->
+                    <div class="tab-pane fade p-4" id="members-panel" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>User-ID</th>
+                                        <th>{{ t('users.display_name') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="room-members-table">
+                                    <tr>
+                                        <td colspan="2" class="text-center py-3">
+                                            <div class="loading"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- PERMISSIONS tab -->
+                    <div class="tab-pane fade p-4" id="permissions-panel" role="tabpanel">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <span class="me-3">{{ t('rooms.federated') }}</span>
+                                    <span id="room-federatable-icon">❌</span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <span class="me-3">{{ t('rooms.in_directory') }}</span>
+                                    <span id="room-in-directory-icon">❌</span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <span class="me-3">Join rules</span>
+                                    <span class="badge bg-secondary" id="room-join-rules">invite</span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <span class="me-3">Guest access</span>
+                                    <span class="badge bg-secondary" id="room-guest-access">can_join</span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <span class="me-3">History visibility</span>
+                                    <span class="badge bg-secondary" id="room-history-visibility">shared</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STATE EVENTS tab -->
+                    <div class="tab-pane fade p-4" id="state-events-panel" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>{{ t('pagination.time_of_send') }}</th>
+                                        <th>Content</th>
+                                        <th>Sender</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="room-state-events-table">
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3">
+                                            <div class="loading"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- FORWARD EXTREMITIES tab -->
+                    <div class="tab-pane fade p-4" id="forward-extremities-panel" role="tabpanel">
+                        <div class="alert alert-info">
+                            <p class="mb-0">
+                                Forward extremities are the leaf events at the end of a Directed acyclic graph (DAG) in a room, aka events that have no children. The more exist in a room, the more state resolution that Synapse needs to perform (hint: it's an expensive operation). While Synapse has code to prevent too many of these existing at one time in a room, bugs can sometimes make them crop up again. If a room has >10 forward extremities, it's worth checking which room is the culprit and potentially removing them using the SQL queries mentioned in #1760.
+                            </p>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Event ID</th>
+                                        <th>Timestamp</th>
+                                        <th>Depth</th>
+                                        <th>State group</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="room-forward-extremities-table">
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3">
+                                            <div class="loading"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    {{ t('forms.cancel') }}
+                </button>
+                <button type="button" class="btn btn-warning" id="editRoomBtn">
+                    <i class="bi bi-pencil me-1"></i>
+                    {{ t('rooms.edit') }}
+                </button>
+                <button type="button" class="btn btn-danger" onclick="clearRoomAction()">
+                    <i class="bi bi-trash me-1"></i>
+                    {{ t('rooms.clear_room') }}
+                </button>
+                <button type="button" class="btn btn-dark" onclick="deleteRoomAction()">
+                    <i class="bi bi-x-circle me-1"></i>
+                    {{ t('rooms.delete_room') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Стили для табов */
+.nav-tabs .nav-link {
+    color: #6c757d;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 1rem 1.5rem;
+}
+
+.nav-tabs .nav-link.active {
+    color: #4e73df;
+    border-bottom-color: #4e73df;
+    background: none;
+    font-weight: 600;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #4e73df;
+    border-bottom-color: #4e73df;
+}
+
+/* Загрузка */
+.loading {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4e73df;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Код с монофонтом */
+code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85rem;
+    background: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    color: #e83e8c;
+}
+</style> 

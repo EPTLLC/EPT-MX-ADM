@@ -1,0 +1,8 @@
+Flask==2.3.3
+requests==2.31.0
+Werkzeug==2.3.7
+Jinja2==3.1.2
+gunicorn==21.2.0
+psutil==5.9.5
+urllib3==2.0.4
+certifi==2023.7.22 

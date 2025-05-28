@@ -1,0 +1,398 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('dashboard.title') }} - {{ t('app.name') }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-speedometer2"></i> {{ t('dashboard.title') }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-refresh onclick="refreshDashboard()">
+                <i class="bi bi-arrow-clockwise"></i> {{ t('dashboard.refresh') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Matrix Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card matrix-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small text-uppercase fw-bold mb-1">
+                            {{ t('dashboard.total_users') }}
+                        </div>
+                        <div class="h3 mb-0 fw-bold text-primary">
+                            {{ stats.total_users if stats.total_users else '0' }}
+                        </div>
+                        <div class="small text-success">
+                            <i class="bi bi-person-check"></i> {{ stats.active_users if stats.active_users else '0' }} {{ t('users.active') }}
+                        </div>
+                    </div>
+                    <div class="ms-3">
+                        <div class="icon-circle bg-primary bg-opacity-10">
+                            <i class="bi bi-people fs-2 text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card matrix-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small text-uppercase fw-bold mb-1">
+                            {{ t('dashboard.total_rooms') }}
+                        </div>
+                        <div class="h3 mb-0 fw-bold text-success">
+                            {{ stats.total_rooms if stats.total_rooms else '0' }}
+                        </div>
+                        <div class="small text-info">
+                            <i class="bi bi-house"></i> {{ stats.local_rooms if stats.local_rooms else '0' }} {{ t('dashboard.local_rooms') }}
+                        </div>
+                    </div>
+                    <div class="ms-3">
+                        <div class="icon-circle bg-success bg-opacity-10">
+                            <i class="bi bi-door-open fs-2 text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card matrix-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small text-uppercase fw-bold mb-1">
+                            {{ t('dashboard.server_version') }}
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-info">
+                            {{ stats.server_version if stats.server_version else t('messages.unknown') }}
+                        </div>
+                        <div class="small text-muted">
+                            <i class="bi bi-code-square"></i> Matrix Synapse
+                        </div>
+                    </div>
+                    <div class="ms-3">
+                        <div class="icon-circle bg-info bg-opacity-10">
+                            <i class="bi bi-server fs-2 text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card matrix-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small text-uppercase fw-bold mb-1">
+                            {{ t('dashboard.server_status') }}
+                        </div>
+                        <div class="h5 mb-0">
+                            <span class="badge bg-success fs-6">
+                                <i class="bi bi-check-circle"></i> {{ t('dashboard.online') }}
+                            </span>
+                        </div>
+                        <div class="small text-muted">
+                            <i class="bi bi-lightning"></i> {{ performance.api_response_time if performance.api_response_time else '0' }}ms
+                        </div>
+                    </div>
+                    <div class="ms-3">
+                        <div class="icon-circle bg-success bg-opacity-10">
+                            <i class="bi bi-wifi fs-2 text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Matrix Server Information -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 py-3">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle text-primary"></i> {{ t('dashboard.server_info') }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <div class="info-label">{{ t('dashboard.domain') }}</div>
+                            <div class="info-value">
+                                <i class="bi bi-globe text-primary"></i> {{ stats.domain if stats.domain else t('messages.unknown') }}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">{{ t('dashboard.server_version') }}</div>
+                            <div class="info-value">
+                                <i class="bi bi-tag text-info"></i> {{ stats.server_version if stats.server_version else t('messages.unknown') }}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Python Version</div>
+                            <div class="info-value">
+                                <i class="bi bi-code text-warning"></i> {{ stats.python_version if stats.python_version else t('messages.unknown') }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <div class="info-label">Admin API</div>
+                            <div class="info-value">
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i> {{ t('dashboard.available') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">{{ t('dashboard.api_response_time') }}</div>
+                            <div class="info-value">
+                                <span class="badge bg-{{ 'success' if performance.api_response_time and performance.api_response_time < 100 else 'warning' if performance.api_response_time and performance.api_response_time < 500 else 'danger' }}">
+                                    <i class="bi bi-speedometer2"></i> {{ performance.api_response_time if performance.api_response_time else '0' }}ms
+                                </span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">{{ t('dashboard.system_health') }}</div>
+                            <div class="info-value">
+                                <span class="badge bg-{{ 'success' if health.overall_status == 'healthy' else 'warning' if health.overall_status == 'degraded' else 'danger' }}">
+                                    <i class="bi bi-heart-pulse"></i> {{ health.overall_status if health.overall_status else 'unknown' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 py-3">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning text-warning"></i> {{ t('navigation.quick_actions') }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('users.users') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-person-plus"></i>
+                        {{ t('users.title') }}
+                    </a>
+                    <a href="{{ url_for('rooms.rooms') }}" class="btn btn-outline-success btn-lg">
+                        <i class="bi bi-door-open"></i>
+                        {{ t('rooms.title') }}
+                    </a>
+                    <a href="{{ url_for('spaces.spaces') }}" class="btn btn-outline-info btn-lg">
+                        <i class="bi bi-grid-3x3"></i>
+                        {{ t('spaces.title') }}
+                    </a>
+                    <a href="{{ url_for('media.users_media') }}" class="btn btn-outline-warning btn-lg">
+                        <i class="bi bi-file-earmark-play"></i>
+                        {{ t('media.title') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Matrix Health Status -->
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 py-3">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-heart-pulse text-danger"></i> Matrix Health Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="health-check">
+                            <div class="d-flex align-items-center">
+                                <div class="health-icon me-3">
+                                    <i class="bi bi-{{ 'check-circle text-success' if health.matrix_api.status == 'healthy' else 'x-circle text-danger' }}"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">Matrix API</div>
+                                    <div class="small text-muted">Core API access</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="health-check">
+                            <div class="d-flex align-items-center">
+                                <div class="health-icon me-3">
+                                    <i class="bi bi-{{ 'check-circle text-success' if health.users_api.status == 'healthy' else 'x-circle text-danger' }}"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">Users API</div>
+                                    <div class="small text-muted">{{ t('users.title') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="health-check">
+                            <div class="d-flex align-items-center">
+                                <div class="health-icon me-3">
+                                    <i class="bi bi-{{ 'check-circle text-success' if health.rooms_api.status == 'healthy' else 'x-circle text-danger' }}"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">Rooms API</div>
+                                    <div class="small text-muted">{{ t('rooms.title') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.matrix-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.matrix-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-label {
+    font-size: 0.875rem;
+    color: var(--bs-secondary);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.info-value {
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
+.health-check {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: var(--bs-light);
+    border: 1px solid var(--bs-border-color);
+}
+
+.health-icon {
+    font-size: 1.5rem;
+}
+
+[data-bs-theme="dark"] .health-check {
+    background: var(--bs-dark);
+}
+
+[data-bs-theme="dark"] .matrix-card {
+    background: var(--bs-dark);
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.card-header {
+    background: transparent !important;
+}
+
+.text-uppercase {
+    letter-spacing: 0.05em;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-refresh dashboard every 60 seconds
+let dashboardInterval;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh every 60 seconds
+    dashboardInterval = setInterval(refreshDashboard, 60000);
+});
+
+function refreshDashboard() {
+    // Show loading state
+    const refreshBtn = document.querySelector('[data-refresh]');
+    const originalContent = refreshBtn.innerHTML;
+    refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise spin"></i> Refreshing...';
+    refreshBtn.disabled = true;
+    
+    // Refresh dashboard data
+    fetch('/api/dashboard/refresh')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload the page to update all data
+                window.location.reload();
+            } else {
+                console.error('Dashboard refresh failed:', data.error);
+                // Restore button state
+                refreshBtn.innerHTML = originalContent;
+                refreshBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Dashboard refresh error:', error);
+            // Restore button state
+            refreshBtn.innerHTML = originalContent;
+            refreshBtn.disabled = false;
+        });
+}
+
+// Add spin animation for refresh icon
+const style = document.createElement('style');
+style.textContent = `
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+
+// Clear interval when leaving page
+window.addEventListener('beforeunload', function() {
+    if (dashboardInterval) clearInterval(dashboardInterval);
+});
+</script>
+{% endblock %} 
