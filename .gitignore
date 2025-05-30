@@ -12,9 +12,6 @@ ENV/
 logs/
 *.log
 
-# Configs
-config/settings.py
-.env
 
 # Temp files
 *.bak
@@ -24,9 +21,6 @@ config/settings.py
 # IDE
 .idea/
 .vscode/
-
-# Static vendor (if downloaded)
-static/vendor/
 
 # OS-specific
 .DS_Store
