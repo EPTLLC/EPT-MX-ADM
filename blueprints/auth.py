@@ -53,5 +53,8 @@ def set_locale(locale):
     else:
         flash(t('messages.error'), 'danger')
     
-    # Return to previous page
-    return redirect(request.referrer or url_for('dashboard.dashboard')) 
+    # Return to previous page, or login if not authenticated
+    if auth_manager.is_authenticated():
+        return redirect(request.referrer or url_for('dashboard.dashboard'))
+    else:
+        return redirect(url_for('auth.login')) 

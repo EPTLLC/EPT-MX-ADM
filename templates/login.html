@@ -35,27 +35,27 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
-        .language-switcher {
+        .theme-switcher {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 1000;
         }
 
-        .language-switcher .dropdown-toggle {
+        .theme-toggle {
             background: rgba(255, 255, 255, 0.9);
             border: none;
             border-radius: 25px;
-            padding: 8px 15px;
+            padding: 8px 12px;
             color: #333;
-            text-decoration: none;
+            cursor: pointer;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
 
-        .language-switcher .dropdown-toggle:hover {
+        .theme-toggle:hover {
             background: rgba(255, 255, 255, 1);
             transform: translateY(-2px);
-            transition: all 0.3s ease;
         }
 
         .copyright {
@@ -136,37 +136,15 @@
             color: #6ea8fe !important;
         }
         
-        [data-bs-theme="dark"] .language-switcher .dropdown-toggle {
+        [data-bs-theme="dark"] .theme-toggle {
             background: rgba(52, 58, 70, 0.9);
             color: #e9ecef;
         }
         
-        [data-bs-theme="dark"] .language-switcher .dropdown-toggle:hover {
+        [data-bs-theme="dark"] .theme-toggle:hover {
             background: rgba(52, 58, 70, 1);
         }
-        
-        [data-bs-theme="dark"] .theme-toggle {
-            background: rgba(52, 58, 70, 0.9) !important;
-            color: #e9ecef !important;
-        }
-        
-        [data-bs-theme="dark"] .theme-toggle:hover {
-            background: rgba(52, 58, 70, 1) !important;
-        }
-        
-        [data-bs-theme="dark"] .dropdown-menu {
-            background-color: #343a46;
-            border-color: #495057;
-        }
-        
-        [data-bs-theme="dark"] .dropdown-item {
-            color: #e9ecef;
-        }
-        
-        [data-bs-theme="dark"] .dropdown-item:hover {
-            background-color: #495057;
-            color: #e9ecef;
-        }
+
     </style>
 </head>
 <body>
@@ -225,32 +203,11 @@
         </div>
     </div>
 
-    <!-- Language Switcher -->
-    <div class="language-switcher dropdown">
-        <div class="d-flex gap-2">
-            <!-- Theme Toggle -->
-            <button class="dropdown-toggle theme-toggle" onclick="toggleTheme()" title="{{ t('settings.toggle_theme') }}" style="background: rgba(255, 255, 255, 0.9); border: none; border-radius: 25px; padding: 8px 12px; color: #333;">
-                <i class="bi bi-sun-fill" id="theme-icon"></i>
-            </button>
-            
-            <!-- Language Switcher -->
-            <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-translate"></i>
-                {% set current_locale_info = i18n.get_locale_info() %}
-                {{ current_locale_info.flag }} {{ current_locale_info.native_name }}
-            </a>
-        </div>
-        <ul class="dropdown-menu dropdown-menu-end">
-            {% for locale in available_locales %}
-            {% set locale_info = i18n.get_locale_info(locale) %}
-            <li>
-                <a class="dropdown-item {% if locale == current_locale %}active{% endif %}" 
-                   href="{{ url_for('auth.set_locale', locale=locale) }}">
-                    {{ locale_info.flag }} {{ locale_info.native_name }}
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
+    <!-- Theme Toggle -->
+    <div class="theme-switcher">
+        <button class="theme-toggle" onclick="toggleTheme()" title="{{ t('settings.toggle_theme') }}">
+            <i class="bi bi-sun-fill" id="theme-icon"></i>
+        </button>
     </div>
 
     <!-- Copyright -->
