@@ -215,9 +215,13 @@
                     <i class="bi bi-pencil me-1"></i>
                     {{ t('rooms.edit') }}
                 </button>
-                <button type="button" class="btn btn-danger" onclick="clearRoomAction()">
-                    <i class="bi bi-trash me-1"></i>
-                    {{ t('rooms.clear_room') }}
+                <button type="button" class="btn btn-info" onclick="unblockRoomAction()">
+                    <i class="bi bi-check-circle me-1"></i>
+                    {{ t('rooms.unblock') }}
+                </button>
+                <button type="button" class="btn btn-success" onclick="makeRoomAdminAction()">
+                    <i class="bi bi-person-badge me-1"></i>
+                    {{ t('rooms.make_admin') }}
                 </button>
                 <button type="button" class="btn btn-dark" onclick="deleteRoomAction()">
                     <i class="bi bi-x-circle me-1"></i>

@@ -8,7 +8,26 @@
 
 ---
 
-## 📁 Professional User Media Management (Latest Beta)
+## 🏠 Room Management Fixes & Improvements (Latest Beta)
+- **🔧 Fixed Room Deletion**: Corrected SynapseAPIClient.delete() method to properly accept JSON parameters
+- **🚮 Simplified Room Actions**: Removed confusing "Clear Room" functionality that didn't work as expected
+- **🎯 Single Action Interface**: Streamlined to only "Delete Room" action for clarity and reliability
+- **🔍 API Testing & Validation**: Tested room deletion on real Matrix rooms (purge: false/true both delete completely)
+- **🧹 Code Cleanup**: Removed unused functions: clearRoom(), clearRoomAction(), clearRoomConfirm()
+- **🗑️ Endpoint Cleanup**: Deleted non-functional /api/rooms/clear endpoint and purge_room_history() method
+- **🌍 Translation Updates**: Added missing 'time_of_send' translations for EN/RU locales
+- **⚠️ Error Handling**: Improved JavaScript error handling with Content-Type validation
+- **🏷️ Template Cleanup**: Removed clearRoomModal and associated UI elements
+- **✅ Bug Resolution**: Fixed "MatrixError: [404] Not a known room" by removing problematic rooms
+- **📝 Translation Cleanup**: Removed unused translation keys related to room clearing functionality
+- **🔓 Room Unblocking**: Added ability to unblock previously blocked rooms
+- **👑 Room Admin Assignment**: New functionality to assign room administrator privileges to users
+- **🎨 Enhanced Room Menu**: Expanded dropdown with additional safe administrative actions
+- **🔐 Security Focus**: Removed message reading functionality to maintain Matrix privacy principles
+- **📡 New API Endpoints**: Added /api/rooms/unblock and /api/rooms/make_admin endpoints
+- **🌍 Complete Translations**: Updated EN/RU locale files with new action labels
+
+## 📁 Professional User Media Management (Beta)
 - **📁 User Media Management**: Full-featured system for viewing and managing media content
 - **📊 Media Statistics**: Dashboard with overall stats - file count, total size, users with media
 - **👥 Users with Media List**: Professional table with avatars, file counts, media sizes, progress bars

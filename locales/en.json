@@ -179,6 +179,7 @@
     "delete": "Delete",
     "block": "Block",
     "unblock": "Unblock",
+    "make_admin": "Make Admin",
     "delete_room": "Delete Room",
     "delete_room_confirm": "Are you sure you want to delete this room?",
     "delete_room_description": "This will permanently delete the room and all its data.",
@@ -318,6 +319,8 @@
     "space_not_found": "Space not found",
     "error_room_details": "Error getting room details",
     "error_room_block": "Error blocking room",
+    "error_room_unblock": "Error unblocking room",
+    "error_room_admin": "Error making room admin",
     "error_room_delete": "Error deleting room",
     "error_space_details": "Error getting space details",
     "error_space_hierarchy": "Error getting hierarchy"

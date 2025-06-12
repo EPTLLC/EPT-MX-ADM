@@ -96,6 +96,25 @@ class RoomManager:
             logger.error(f"Error blocking/unblocking room: {str(e)}")
             return False
 
+    def unblock_room(self, room_id):
+        """Unblock room (convenience method)"""
+        return self.block_room(room_id, block=False)
+
+    def make_room_admin(self, room_id, user_id):
+        """Make user admin of the room"""
+        try:
+            data = {"user_id": user_id}
+            response = self.api_client.post(f'/v1/rooms/{room_id}/make_room_admin', json=data)
+            if response and response.status_code == 200:
+                logger.info(f"User {user_id} made admin of room {room_id}")
+                return True
+            else:
+                logger.error(f"Failed to make room admin: {response.status_code if response else 'No response'}")
+                return False
+        except Exception as e:
+            logger.error(f"Error making room admin: {str(e)}")
+            return False
+
 
 
     def delete_room(self, room_id, purge=True, message=None):

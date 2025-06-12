@@ -195,6 +195,55 @@ def api_block_room():
         return jsonify({'success': False, 'error': t('errors.error_room_block')})
 
 
+@api_bp.route('/rooms/unblock', methods=['POST'])
+@admin_required
+def api_unblock_room():
+    """API for unblocking room"""
+    try:
+        api_client = auth_manager.get_api_client()
+        room_manager = RoomManager(api_client)
+        
+        data = request.get_json() or {}
+        room_id = data.get('room_id')
+        
+        if not room_id:
+            return jsonify({'success': False, 'error': 'Room ID is required'})
+        
+        if room_manager.unblock_room(room_id):
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': t('errors.error_room_unblock')})
+    
+    except Exception as e:
+        logger.error(f"Room unblocking error: {str(e)}")
+        return jsonify({'success': False, 'error': t('errors.error_room_unblock')})
+
+
+@api_bp.route('/rooms/make_admin', methods=['POST'])
+@admin_required
+def api_make_room_admin():
+    """API for making user room admin"""
+    try:
+        api_client = auth_manager.get_api_client()
+        room_manager = RoomManager(api_client)
+        
+        data = request.get_json() or {}
+        room_id = data.get('room_id')
+        user_id = data.get('user_id')
+        
+        if not room_id or not user_id:
+            return jsonify({'success': False, 'error': 'Room ID and User ID are required'})
+        
+        if room_manager.make_room_admin(room_id, user_id):
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': t('errors.error_room_admin')})
+    
+    except Exception as e:
+        logger.error(f"Make room admin error: {str(e)}")
+        return jsonify({'success': False, 'error': t('errors.error_room_admin')})
+
+
 
 
 

@@ -117,7 +117,7 @@ Manage your server from your phone. Yes, really.
 ### 🎯 Current Functionality (Beta)
 
 * 👥 User Management *(implemented)*
-* 🏠 Room Management *(in development)*
+* 🏠 Room Management *(beta - deletion working)*
 * 🌐 Space Management *(planned)*
 * 📁 User Media Management *(beta)*
 * 📊 Dashboard *(basic)*
@@ -329,7 +329,8 @@ Use a reverse proxy (e.g., Nginx + HTTPS).
 ## 🗺️ Roadmap
 
 ### v0.1.0 (Q1 2025)
-- [ ] Complete room management
+- [x] Room deletion functionality
+- [ ] Advanced room management (permissions, settings)
 - [ ] Space hierarchy view
 - [ ] Bulk user operations
 

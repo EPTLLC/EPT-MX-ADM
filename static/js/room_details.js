@@ -520,11 +520,118 @@ function deleteRoomAction() {
 }
 
 /**
+ * Действие разблокировки комнаты (вызывается через onclick)
+ */
+function unblockRoomAction() {
+    console.log('unblockRoomAction called, currentRoomData:', currentRoomData);
+    
+    if (currentRoomData && currentRoomData.room_id) {
+        const roomName = currentRoomData.name || currentRoomData.canonical_alias || currentRoomData.room_id;
+        
+        if (confirm(`Are you sure you want to unblock room "${roomName}"?`)) {
+            unblockRoom(currentRoomData.room_id);
+        }
+    } else {
+        alert('Room data not loaded. Please reopen the modal window.');
+    }
+}
+
+/**
+ * Разблокировать комнату
+ */
+async function unblockRoom(roomId) {
+    try {
+        const response = await fetch('/api/rooms/unblock', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ room_id: roomId })
+        });
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Server returned non-JSON response. You may need to log in again.');
+        }
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            alert('Room unblocked successfully');
+            // Можно обновить статус в UI если нужно
+        } else {
+            alert('Error unblocking room: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error unblocking room:', error);
+        alert('Error unblocking room: ' + error.message);
+    }
+}
+
+/**
+ * Действие назначения админа комнаты (вызывается через onclick)
+ */
+function makeRoomAdminAction() {
+    console.log('makeRoomAdminAction called, currentRoomData:', currentRoomData);
+    
+    if (currentRoomData && currentRoomData.room_id) {
+        const userId = prompt('Enter User ID to make room admin:');
+        if (userId && userId.trim()) {
+            makeRoomAdmin(currentRoomData.room_id, userId.trim());
+        }
+    } else {
+        alert('Room data not loaded. Please reopen the modal window.');
+    }
+}
+
+/**
+ * Назначить админа комнаты
+ */
+async function makeRoomAdmin(roomId, userId) {
+    try {
+        const response = await fetch('/api/rooms/make_admin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                room_id: roomId,
+                user_id: userId
+            })
+        });
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Server returned non-JSON response. You may need to log in again.');
+        }
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            alert('User made room admin successfully');
+            // Можно обновить список участников если нужно
+            if (currentRoomData && currentRoomData.room_id) {
+                loadRoomMembers(currentRoomData.room_id);
+            }
+        } else {
+            alert('Error making room admin: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error making room admin:', error);
+        alert('Error making room admin: ' + error.message);
+    }
+}
+
+/**
  * Экспорт функций для использования в templates
  */
 console.log('Exporting functions to window object...');
 window.showRoomDetails = showRoomDetails;
 window.deleteRoomAction = deleteRoomAction;
+window.unblockRoomAction = unblockRoomAction;
+window.makeRoomAdminAction = makeRoomAdminAction;
 console.log('Functions exported to window:');
 console.log('- window.showRoomDetails:', typeof window.showRoomDetails);
-console.log('- window.deleteRoomAction:', typeof window.deleteRoomAction); 
+console.log('- window.deleteRoomAction:', typeof window.deleteRoomAction);
+console.log('- window.unblockRoomAction:', typeof window.unblockRoomAction);
+console.log('- window.makeRoomAdminAction:', typeof window.makeRoomAdminAction); 
