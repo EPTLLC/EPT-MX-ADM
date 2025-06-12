@@ -179,15 +179,10 @@
     "delete": "Delete",
     "block": "Block",
     "unblock": "Unblock",
-    "clear_room": "Clear Room",
     "delete_room": "Delete Room",
-    "clear_room_confirm": "Are you sure you want to clear this room?",
     "delete_room_confirm": "Are you sure you want to delete this room?",
-    "clear_room_description": "This will remove all messages and events from the room.",
     "delete_room_description": "This will permanently delete the room and all its data.",
-    "clear_room_success": "Room cleared successfully",
     "delete_room_success": "Room deleted successfully",
-    "error_clear_room": "Error clearing room",
     "error_delete_room": "Error deleting room",
     "edit_warning": "Changes to room settings may take time to propagate",
     "search_placeholder": "Search rooms...",
@@ -282,7 +277,8 @@
     "load_more": "Load More",
     "rows_per_page": "Rows per page",
     "go_to_page": "Go to page",
-    "total_items": "Total items"
+    "total_items": "Total items",
+    "time_of_send": "Send Time"
   },
   
   "analytics": {

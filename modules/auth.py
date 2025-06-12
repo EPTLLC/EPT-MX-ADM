@@ -152,13 +152,15 @@ class SynapseAPIClient:
             logger.error(f"API PUT error: {str(e)}")
             return None
     
-    def delete(self, endpoint):
+    def delete(self, endpoint, json=None, **kwargs):
         """Make DELETE request to Synapse API"""
         headers = {'Authorization': f'Bearer {self.access_token}'}
+        if json:
+            headers['Content-Type'] = 'application/json'
         url = f"{self.admin_url}{endpoint}"
         
         try:
-            response = requests.delete(url, headers=headers, timeout=10)
+            response = requests.delete(url, headers=headers, json=json, timeout=10, **kwargs)
             return response
         except Exception as e:
             logger.error(f"API DELETE error: {str(e)}")

@@ -99,13 +99,19 @@ def api_delete_user(user_id):
 
 # ==================== ROOM API ====================
 
-@api_bp.route('/rooms/<room_id>/details')
+@api_bp.route('/rooms/details', methods=['POST'])
 @admin_required
-def api_room_details(room_id):
+def api_room_details():
     """API for getting room details"""
     try:
         api_client = auth_manager.get_api_client()
         room_manager = RoomManager(api_client)
+        
+        data = request.get_json() or {}
+        room_id = data.get('room_id')
+        
+        if not room_id:
+            return jsonify({'success': False, 'error': 'Room ID is required'})
         
         room_data = room_manager.get_room_details(room_id)
         
@@ -119,13 +125,19 @@ def api_room_details(room_id):
         return jsonify({'success': False, 'error': 'Error loading room details'})
 
 
-@api_bp.route('/rooms/<room_id>/members')
+@api_bp.route('/rooms/members', methods=['POST'])
 @admin_required
-def api_room_members(room_id):
+def api_room_members():
     """API for getting room members"""
     try:
         api_client = auth_manager.get_api_client()
         room_manager = RoomManager(api_client)
+        
+        data = request.get_json() or {}
+        room_id = data.get('room_id')
+        
+        if not room_id:
+            return jsonify({'success': False, 'error': 'Room ID is required'})
         
         members = room_manager.get_room_members(room_id)
         
@@ -136,13 +148,19 @@ def api_room_members(room_id):
         return jsonify({'success': False, 'error': 'Error loading room members'})
 
 
-@api_bp.route('/rooms/<room_id>/state_events')
+@api_bp.route('/rooms/state_events', methods=['POST'])
 @admin_required
-def api_room_state_events(room_id):
+def api_room_state_events():
     """API for getting room state events"""
     try:
         api_client = auth_manager.get_api_client()
         room_manager = RoomManager(api_client)
+        
+        data = request.get_json() or {}
+        room_id = data.get('room_id')
+        
+        if not room_id:
+            return jsonify({'success': False, 'error': 'Room ID is required'})
         
         events = room_manager.get_room_state_events(room_id)
         
@@ -153,13 +171,19 @@ def api_room_state_events(room_id):
         return jsonify({'success': False, 'error': 'Error loading state events'})
 
 
-@api_bp.route('/rooms/<room_id>/block', methods=['POST'])
+@api_bp.route('/rooms/block', methods=['POST'])
 @admin_required
-def api_block_room(room_id):
+def api_block_room():
     """API for blocking room"""
     try:
         api_client = auth_manager.get_api_client()
         room_manager = RoomManager(api_client)
+        
+        data = request.get_json() or {}
+        room_id = data.get('room_id')
+        
+        if not room_id:
+            return jsonify({'success': False, 'error': 'Room ID is required'})
         
         if room_manager.block_room(room_id, True):
             return jsonify({'success': True})
@@ -171,18 +195,25 @@ def api_block_room(room_id):
         return jsonify({'success': False, 'error': t('errors.error_room_block')})
 
 
-@api_bp.route('/rooms/<room_id>/delete', methods=['POST'])
+
+
+
+@api_bp.route('/rooms/delete', methods=['POST'])
 @admin_required
-def api_delete_room(room_id):
-    """API for deleting room"""
+def api_delete_room():
+    """API for deleting room completely"""
     try:
         api_client = auth_manager.get_api_client()
         room_manager = RoomManager(api_client)
         
         data = request.get_json() or {}
-        purge = data.get('purge', False)
+        room_id = data.get('room_id')
+        message = data.get('message', None)
         
-        result = room_manager.delete_room(room_id, purge=purge)
+        if not room_id:
+            return jsonify({'success': False, 'error': 'Room ID is required'})
+        
+        result = room_manager.delete_room(room_id, purge=True, message=message)
         
         if result:
             return jsonify({'success': True})

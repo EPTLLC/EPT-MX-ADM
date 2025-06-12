@@ -479,6 +479,7 @@
 <!-- Подключаем новое детальное модальное окно -->
 {% include 'room_details_modal.html' %}
 
+
 <!-- Модальное окно подтверждения удаления -->
 <div class="modal fade" id="deleteRoomModal" tabindex="-1">
     <div class="modal-dialog">
@@ -491,12 +492,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>{{ t('rooms.confirm_delete') }}</p>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="purgeData">
-                    <label class="form-check-label text-danger" for="purgeData">
-                        {{ t('rooms.purge_data') }}
-                    </label>
+                <p><strong>This will completely delete the room and remove all users from it.</strong></p>
+                <p class="text-muted">All message history will be deleted and users will be kicked out.</p>
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    This action cannot be undone!
                 </div>
             </div>
             <div class="modal-footer">
@@ -637,6 +637,11 @@ function refreshRooms() {
     window.location.reload();
 }
 
+function refreshRoomsList() {
+    // Alias for compatibility with room_details.js
+    window.location.reload();
+}
+
 function exportRooms() {
     const url = new URL('/rooms/export', window.location.origin);
     
@@ -664,11 +669,12 @@ function editRoom(roomId) {
 function blockRoom(roomId) {
     if (confirm('Are you sure you want to block this room?')) {
         // Отправляем запрос на блокировку
-        fetch('/api/rooms/' + roomId + '/block', {
+        fetch('/api/rooms/block', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-            }
+            },
+            body: JSON.stringify({ room_id: roomId })
         })
         .then(response => response.json())
         .then(data => {
@@ -678,9 +684,14 @@ function blockRoom(roomId) {
             } else {
                 showAlert('Error: ' + data.error, 'danger');
             }
+        })
+        .catch(error => {
+            showAlert('Error: ' + error.message, 'danger');
         });
     }
 }
+
+
 
 function deleteRoom(roomId) {
     currentRoomId = roomId;
@@ -688,27 +699,48 @@ function deleteRoom(roomId) {
     modal.show();
 }
 
+
+
 document.getElementById('confirmDeleteRoom').addEventListener('click', function() {
-    const purge = document.getElementById('purgeData').checked;
+    const button = this;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
+    button.disabled = true;
     
-    fetch('/api/rooms/' + currentRoomId + '/delete', {
+    fetch('/api/rooms/delete', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ purge: purge })
+        body: JSON.stringify({ 
+            room_id: currentRoomId,
+            message: 'Room deleted by administrator' 
+        })
     })
-    .then(response => response.json())
+    .then(response => {
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Server returned non-JSON response. You may need to log in again.');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            showAlert('Room deleted successfully', 'success');
+            showAlert('Комната успешно удалена', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('deleteRoomModal')).hide();
             setTimeout(() => window.location.reload(), 1000);
         } else {
-            showAlert('Error: ' + data.error, 'danger');
+            showAlert('Ошибка удаления комнаты: ' + (data.error || 'Unknown error'), 'danger');
         }
+    })
+    .catch(error => {
+        showAlert('Ошибка при удалении комнаты: ' + error.message, 'danger');
+    })
+    .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
     });
-    
-    bootstrap.Modal.getInstance(document.getElementById('deleteRoomModal')).hide();
 });
 
 function showAlert(message, type) {
@@ -716,7 +748,12 @@ function showAlert(message, type) {
     alertDiv.className = 'alert alert-' + type + ' alert-dismissible fade show';
     alertDiv.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
     
-    document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.container-fluid').firstChild);
+    const container = document.querySelector('.container-fluid');
+    if (container) {
+        container.insertBefore(alertDiv, container.firstChild);
+    } else {
+        document.body.appendChild(alertDiv);
+    }
     
     setTimeout(() => {
         if (alertDiv.parentNode) {

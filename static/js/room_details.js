@@ -86,7 +86,13 @@ function clearTabData() {
  */
 async function loadBasicInfo(roomId) {
     try {
-        const response = await fetch(`/api/rooms/${roomId}/details`);
+        const response = await fetch('/api/rooms/details', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ room_id: roomId })
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -180,7 +186,13 @@ function displayPermissionsInfo(room) {
  */
 async function loadRoomMembers(roomId) {
     try {
-        const response = await fetch(`/api/rooms/${roomId}/members`);
+        const response = await fetch('/api/rooms/members', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ room_id: roomId })
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -235,7 +247,13 @@ function showMembersError(message) {
  */
 async function loadStateEvents(roomId) {
     try {
-        const response = await fetch(`/api/rooms/${roomId}/state_events`);
+        const response = await fetch('/api/rooms/state_events', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ room_id: roomId })
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -350,17 +368,7 @@ function showError(message) {
     // Можно добавить показ toast уведомления
 }
 
-/**
- * Подтверждение очистки комнаты
- */
-function clearRoomConfirm(roomId) {
-    console.log('clearRoomConfirm called with roomId:', roomId);
-    const roomName = currentRoomData.name || currentRoomData.canonical_alias || roomId;
-    
-    if (confirm(`Вы уверены, что хотите очистить комнату "${roomName}"?\n\nЭто удалит все сообщения и события из комнаты.`)) {
-        clearRoom(roomId);
-    }
-}
+
 
 /**
  * Подтверждение удаления комнаты
@@ -374,38 +382,7 @@ function deleteRoomConfirm(roomId) {
     }
 }
 
-/**
- * Очистить комнату
- */
-async function clearRoom(roomId) {
-    console.log('clearRoom called with roomId:', roomId);
-    try {
-        const response = await fetch(`/api/rooms/${roomId}/clear`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            alert('Комната успешно очищена');
-            // Закрываем модальное окно
-            const modal = bootstrap.Modal.getInstance(document.getElementById('roomDetailsModal'));
-            modal.hide();
-            // Обновляем список комнат если нужно
-            if (typeof refreshRoomsList === 'function') {
-                refreshRoomsList();
-            }
-        } else {
-            alert('Ошибка очистки комнаты: ' + data.error);
-        }
-    } catch (error) {
-        console.error('Error clearing room:', error);
-        alert('Ошибка сети при очистке комнаты');
-    }
-}
+
 
 /**
  * Удалить комнату
@@ -413,30 +390,42 @@ async function clearRoom(roomId) {
 async function deleteRoom(roomId) {
     console.log('deleteRoom called with roomId:', roomId);
     try {
-        const response = await fetch(`/api/rooms/${roomId}/delete`, {
-            method: 'DELETE',
+        const response = await fetch('/api/rooms/delete', {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-            }
+            },
+            body: JSON.stringify({ 
+                room_id: roomId,
+                message: 'Room deleted by administrator'
+            })
         });
+        
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Server returned non-JSON response. You may need to log in again.');
+        }
         
         const data = await response.json();
         
-        if (data.success) {
+        if (response.ok && data.success) {
             alert('Комната успешно удалена');
             // Закрываем модальное окно
             const modal = bootstrap.Modal.getInstance(document.getElementById('roomDetailsModal'));
-            modal.hide();
+            if (modal) modal.hide();
             // Обновляем список комнат если нужно
             if (typeof refreshRoomsList === 'function') {
                 refreshRoomsList();
+            } else {
+                window.location.reload();
             }
         } else {
-            alert('Ошибка удаления комнаты: ' + data.error);
+            alert('Ошибка удаления комнаты: ' + (data.error || 'Unknown error'));
         }
     } catch (error) {
         console.error('Error deleting room:', error);
-        alert('Ошибка сети при удалении комнаты');
+        alert('Ошибка при удалении комнаты: ' + error.message);
     }
 }
 
@@ -499,34 +488,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Clear и Delete кнопки теперь используют onclick атрибуты в HTML
 });
 
-/**
- * Действие очистки комнаты (вызывается через onclick)
- */
-function clearRoomAction() {
-    console.log('=== clearRoomAction START ===');
-    console.log('clearRoomAction called, currentRoomData:', currentRoomData);
-    console.log('typeof currentRoomData:', typeof currentRoomData);
-    console.log('currentRoomData is null?', currentRoomData === null);
-    console.log('currentRoomData is undefined?', currentRoomData === undefined);
-    
-    if (currentRoomData && currentRoomData.room_id) {
-        const roomName = currentRoomData.name || currentRoomData.canonical_alias || currentRoomData.room_id;
-        console.log('Room name for confirmation:', roomName);
-        
-        console.log('Showing confirmation dialog...');
-        if (confirm(`Вы уверены, что хотите очистить комнату "${roomName}"?\n\nЭто удалит все сообщения и события из комнаты.`)) {
-            console.log('User confirmed clear action, calling clearRoom()');
-            clearRoom(currentRoomData.room_id);
-        } else {
-            console.log('User cancelled clear action');
-        }
-    } else {
-        console.log('ERROR: No currentRoomData available for clear action');
-        console.log('currentRoomData value:', currentRoomData);
-        alert('Данные комнаты не загружены. Попробуйте открыть модальное окно заново.');
-    }
-    console.log('=== clearRoomAction END ===');
-}
+
 
 /**
  * Действие удаления комнаты (вызывается через onclick)
@@ -562,9 +524,7 @@ function deleteRoomAction() {
  */
 console.log('Exporting functions to window object...');
 window.showRoomDetails = showRoomDetails;
-window.clearRoomAction = clearRoomAction;
 window.deleteRoomAction = deleteRoomAction;
 console.log('Functions exported to window:');
 console.log('- window.showRoomDetails:', typeof window.showRoomDetails);
-console.log('- window.clearRoomAction:', typeof window.clearRoomAction);
 console.log('- window.deleteRoomAction:', typeof window.deleteRoomAction); 
