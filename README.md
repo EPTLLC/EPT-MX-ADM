@@ -251,6 +251,33 @@ Folder structure: `ept-mx-adm/`
 | Real Analytics | ✅ | ❌ | ❌ |
 | Easy Setup | ✅ | ❌ | ❌ |
 
+## 🧪 Testing & Development
+
+EPT-MX-ADM includes comprehensive testing infrastructure:
+
+```bash
+# Install development dependencies
+pip install -r requirements-dev.txt
+
+# Run tests
+make test                    # All tests
+make test-unit              # Unit tests only
+make test-coverage          # With coverage report
+
+# Code quality
+make lint                   # Linting
+make format                 # Code formatting
+make ci                     # All CI checks
+```
+
+**Testing Stack:**
+- pytest + coverage reporting
+- GitHub Actions CI/CD
+- Code quality tools (flake8, black, mypy)
+- Security scanning (bandit)
+
+See [TESTING.md](TESTING.md) for detailed testing guide.
+
 ## 🚀 Quick Start
 
 ### Deployment Recommendations (Linux):
@@ -345,6 +372,8 @@ Use a reverse proxy (e.g., Nginx + HTTPS).
 - [x] Room deletion functionality
 - [x] User management improvements
 - [x] Media management
+- [x] Testing infrastructure (pytest, CI/CD)
+- [x] Code quality tools (linting, formatting)
 - [ ] Advanced room management (permissions, settings)
 - [ ] Space hierarchy view
 - [ ] Bulk user operations

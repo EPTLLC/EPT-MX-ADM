@@ -25,3 +25,16 @@ logs/
 # OS-specific
 .DS_Store
 Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+coverage.xml
+bandit-report.json
+
+# Build
+dist/
+build/
+*.egg-info/
