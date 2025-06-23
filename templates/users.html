@@ -126,10 +126,18 @@
                 {% endif %}
             </div>
             <div class="card-footer d-flex gap-2 justify-content-end">
-                <button type="button" class="btn btn-outline-info btn-sm" onclick="showUserWhois('{{ user.name }}')" title="{{ t('users.view_profile') }}">
+                <button type="button" class="btn btn-outline-info btn-sm" 
+                        onclick="showUserWhois('{{ user.name }}')" 
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="bottom" 
+                        data-bs-title="{{ t('users.view_profile') }}">
                     <i class="bi bi-eye"></i>
                 </button>
-                <a href="{{ url_for('users.edit_user', user_id=user.name) }}" class="btn btn-outline-warning btn-sm" title="{{ t('users.edit_user') }}">
+                <a href="{{ url_for('users.edit_user', user_id=user.name) }}" 
+                   class="btn btn-outline-warning btn-sm" 
+                   data-bs-toggle="tooltip" 
+                   data-bs-placement="bottom" 
+                   data-bs-title="{{ t('users.edit_user') }}">
                     <i class="bi bi-pencil"></i>
                 </a>
                 {% if not user.admin %}
@@ -370,6 +378,14 @@ function displayUserInfo(whois, userId) {
         '</div>';
     
     content.innerHTML = html;
+    
+    // Reinitialize tooltips for dynamically created content
+    const userInfoTooltips = content.querySelectorAll('[data-bs-toggle="tooltip"]');
+    userInfoTooltips.forEach(el => new bootstrap.Tooltip(el, {
+        delay: { show: 300, hide: 100 },
+        placement: 'bottom',
+        fallbackPlacements: ['top', 'right', 'left']
+    }));
 }
 
 function showUserMedia(userId) {
@@ -411,7 +427,7 @@ function displayUserMedia(mediaData, userId) {
         '<div class="p-4">' +
             '<div class="d-flex justify-content-between align-items-center mb-4">' +
                 '<h4 class="text-gradient"><i class="bi bi-file-earmark-image me-2"></i>{{ t("users.media_files") }} - ' + userId + '</h4>' +
-                '<button class="btn btn-outline-primary btn-sm hover-lift" onclick="showUserWhois(\'' + userId + '\')">' +
+                '<button class="btn btn-outline-primary btn-sm hover-lift" onclick="showUserWhois(\'' + userId + '\')" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="{{ t("forms.back_to_profile") }}">' +
                     '<i class="bi bi-arrow-left me-2"></i>{{ t("forms.back_to_profile") }}' +
                 '</button>' +
             '</div>';
@@ -433,6 +449,14 @@ function displayUserMedia(mediaData, userId) {
     
     html += '</div>';
     content.innerHTML = html;
+    
+    // Reinitialize tooltips for dynamically created content
+    const userMediaTooltips = content.querySelectorAll('[data-bs-toggle="tooltip"]');
+    userMediaTooltips.forEach(el => new bootstrap.Tooltip(el, {
+        delay: { show: 300, hide: 100 },
+        placement: 'bottom',
+        fallbackPlacements: ['top', 'right', 'left']
+    }));
 }
 
 // Add refresh functionality
@@ -440,6 +464,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('[data-refresh]')?.addEventListener('click', function() {
         window.location.reload();
     });
+    
+    // Initialize tooltips
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl, {
+        delay: { show: 300, hide: 100 },
+        placement: 'bottom',
+        fallbackPlacements: ['top', 'right', 'left']
+    }));
 });
 </script>
 {% endblock %} 

@@ -440,6 +440,90 @@ body {
 
 
 /* ==========================================================================
+   TOOLTIP SYSTEM
+   ========================================================================== */
+
+.tooltip {
+    z-index: var(--z-tooltip);
+    font-family: var(--font-family);
+}
+
+.tooltip .tooltip-inner {
+    background: var(--bg-glass-dark);
+    color: var(--text-white);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-light);
+    backdrop-filter: blur(20px);
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: var(--bg-glass-dark);
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: var(--bg-glass-dark);
+}
+
+.tooltip.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: var(--bg-glass-dark);
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: var(--bg-glass-dark);
+}
+
+/* Custom tooltip positioning */
+.tooltip-custom {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-custom .tooltip-text {
+    visibility: hidden;
+    background: var(--bg-glass-dark);
+    color: var(--text-white);
+    text-align: center;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing);
+    position: absolute;
+    z-index: var(--z-tooltip);
+    bottom: 125%;
+    left: 50%;
+    margin-left: -80px;
+    width: 160px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-light);
+    backdrop-filter: blur(20px);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.tooltip-custom .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--bg-glass-dark) transparent transparent transparent;
+}
+
+.tooltip-custom:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(-5px);
+}
+
+/* ==========================================================================
    FORM SYSTEM
    ========================================================================== */
 
