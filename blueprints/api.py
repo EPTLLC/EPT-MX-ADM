@@ -21,6 +21,26 @@ logger = get_logger()
 
 # ==================== USER API ====================
 
+@api_bp.route('/users/<user_id>/details')
+@admin_required
+def api_user_details(user_id):
+    """API for getting user details"""
+    try:
+        api_client = auth_manager.get_api_client()
+        user_manager = UserManager(api_client)
+        
+        user_data = user_manager.get_user_details(user_id)
+        
+        if user_data:
+            return jsonify(user_data)
+        else:
+            return jsonify({'error': t('users.user_not_found')})
+    
+    except Exception as e:
+        logger.error(f"User details error: {str(e)}")
+        return jsonify({'error': t('users.error_server')})
+
+
 @api_bp.route('/users/<user_id>/whois')
 @admin_required
 def api_user_whois(user_id):

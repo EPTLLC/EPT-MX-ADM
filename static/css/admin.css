@@ -260,6 +260,8 @@ body {
     gap: var(--spacing-lg);
 }
 
+
+
 /* ==========================================================================
    AVATAR SYSTEM
    ========================================================================== */
@@ -457,18 +459,21 @@ body {
     z-index: 9998 !important;
 }
 
+
+
 .tooltip .tooltip-inner {
     background: var(--bg-glass-dark);
     color: var(--text-white);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-sm) var(--spacing);
-    font-size: var(--font-size-sm);
+    border-radius: var(--border-radius-sm);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
     font-weight: var(--font-weight-medium);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow);
     border: 1px solid var(--border-light);
     backdrop-filter: blur(20px);
-    max-width: 200px;
+    max-width: 120px;
     word-wrap: break-word;
+    white-space: nowrap;
 }
 
 .tooltip.bs-tooltip-top .tooltip-arrow::before {

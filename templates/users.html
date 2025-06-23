@@ -92,7 +92,7 @@
 
     <!-- Список пользователей в виде карточек -->
     {% if users %}
-    <div class="users-grid">
+        <div class="users-grid">
         {% for user in users %}
         <div class="card">
             <div class="card-header d-flex align-items-center">
@@ -126,19 +126,10 @@
                 {% endif %}
             </div>
             <div class="card-footer d-flex gap-2 justify-content-end">
-                <button type="button" class="btn btn-outline-info btn-sm" 
-                        onclick="showUserWhois('{{ user.name }}')" 
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        data-bs-title="{{ t('users.view_profile') }}">
-                    <i class="bi bi-eye"></i>
-                </button>
                 <a href="{{ url_for('users.edit_user', user_id=user.name) }}" 
-                   class="btn btn-outline-warning btn-sm" 
-                   data-bs-toggle="tooltip" 
-                   data-bs-placement="top" 
-                   data-bs-title="{{ t('users.edit_user') }}">
-                    <i class="bi bi-pencil"></i>
+                   class="btn btn-outline-primary btn-sm" 
+                   title="{{ t('users.edit_user') }}">
+                    <i class="bi bi-pencil me-1"></i>{{ t('users.edit_user') }}
                 </a>
                 {% if not user.admin %}
                 <div class="dropdown">
@@ -270,6 +261,39 @@ function clearSearch() {
     window.location.href = url.toString();
 }
 
+function formatTimestamp(timestamp) {
+    if (!timestamp) {
+        return '{{ t("messages.unknown") }}';
+    }
+    
+    // Synapse timestamps can be in seconds or milliseconds
+    let date;
+    if (timestamp < 10000000000) {
+        // Timestamp in seconds, convert to milliseconds
+        date = new Date(timestamp * 1000);
+    } else {
+        // Timestamp already in milliseconds
+        date = new Date(timestamp);
+    }
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+        return '{{ t("messages.unknown") }}';
+    }
+    
+    // Format as local date and time
+    return date.toLocaleString();
+}
+
+function getLastSeen(userDetails) {
+    // Try different possible fields for last seen
+    return userDetails.last_seen_ts || 
+           userDetails.last_seen || 
+           userDetails.last_active_ts || 
+           userDetails.last_active ||
+           null;
+}
+
 function showUserWhois(userId) {
     const modal = new bootstrap.Modal(document.getElementById('userWhoisModal'));
     const content = document.getElementById('whoisContent');
@@ -282,17 +306,22 @@ function showUserWhois(userId) {
     
     modal.show();
     
-    // Fetch user data
-    fetch('/api/users/' + encodeURIComponent(userId) + '/whois')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                displayUserInfo(data.whois, userId);
+    // Fetch user details first
+    fetch('/api/users/' + encodeURIComponent(userId) + '/details')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+            return response.json();
+        })
+        .then(userDetails => {
+            if (userDetails && !userDetails.error) {
+                displayUserInfo(userDetails, userId);
             } else {
                 content.innerHTML = 
                     '<div class="alert alert-danger m-4">' +
                         '<i class="bi bi-exclamation-triangle me-2"></i>' +
-                        '{{ t("messages.error") }}: ' + (data.error || '{{ t("messages.unknown_error") }}') +
+                        '{{ t("messages.error") }}: ' + (userDetails.error || '{{ t("messages.unknown_error") }}') +
                     '</div>';
             }
         })
@@ -337,11 +366,11 @@ function displayUserInfo(whois, userId) {
                 '<hr class="border-light opacity-25">' +
                 '<div class="mb-3">' +
                     '<h6><i class="bi bi-calendar-plus me-2"></i>{{ t("users.created") }}</h6>' +
-                    '<p class="mb-0 opacity-75">' + (whois.creation_ts ? new Date(whois.creation_ts).toLocaleString() : '{{ t("messages.unknown") }}') + '</p>' +
+                    '<p class="mb-0 opacity-75">' + formatTimestamp(whois.creation_ts) + '</p>' +
                 '</div>' +
                 '<div class="mb-3">' +
                     '<h6><i class="bi bi-clock me-2"></i>{{ t("users.last_seen") }}</h6>' +
-                    '<p class="mb-0 opacity-75">' + (whois.last_seen_ts ? new Date(whois.last_seen_ts).toLocaleString() : '{{ t("messages.unknown") }}') + '</p>' +
+                    '<p class="mb-0 opacity-75">' + formatTimestamp(getLastSeen(whois)) + '</p>' +
                 '</div>' +
             '</div>' +
             
@@ -384,6 +413,7 @@ function displayUserInfo(whois, userId) {
     userInfoTooltips.forEach(el => new bootstrap.Tooltip(el, {
         delay: { show: 300, hide: 100 },
         placement: 'top',
+        offset: [0, 10],
         fallbackPlacements: ['bottom', 'right', 'left']
     }));
 }
@@ -455,6 +485,7 @@ function displayUserMedia(mediaData, userId) {
     userMediaTooltips.forEach(el => new bootstrap.Tooltip(el, {
         delay: { show: 300, hide: 100 },
         placement: 'top',
+        offset: [0, 10],
         fallbackPlacements: ['bottom', 'right', 'left']
     }));
 }
@@ -469,8 +500,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl, {
         delay: { show: 300, hide: 100 },
-        placement: 'top',
-        fallbackPlacements: ['bottom', 'right', 'left']
+        placement: 'left',
+        offset: [0, 10],
+        fallbackPlacements: ['right', 'bottom', 'top']
     }));
 });
 </script>

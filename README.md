@@ -116,18 +116,37 @@ Manage your server from your phone. Yes, really.
 
 ### 🎯 Current Functionality (Beta)
 
-* 👥 User Management *(implemented)*
-* 🏠 Room Management *(beta - deletion working)*
-* 🌐 Space Management *(planned)*
-* 📁 User Media Management *(beta)*
-* 📊 Dashboard *(basic)*
-* 🔐 Secure Authorization *(working)*
-* 🌍 Multilingual (11 languages) *(complete)*
-* 📱 Responsive Design *(in progress)*
-* 🔍 Search *(limited)*
+* 👥 **User Management** *(fully implemented)*
+  - Create, edit, deactivate users
+  - Search and filter capabilities
+  - CSV import/export
+  - Admin rights management
+* 🏠 **Room Management** *(implemented)*
+  - Room listing with advanced filters
+  - Room deletion and blocking
+  - Member management
+  - Search by name/ID
+* 📁 **Media Management** *(implemented)*
+  - User media browser
+  - Quarantine/unquarantine files
+  - Storage analytics
+* 📊 **Dashboard** *(implemented)*
+  - Real-time server statistics
+  - User growth charts
+  - System health monitoring
+* 🔐 **Secure Authorization** *(working)*
+  - Matrix admin account authentication
+  - Session management
+* 🌍 **Multilingual** *(complete)*
+  - 11 languages supported
+  - Instant language switching
+* 📱 **Responsive Design** *(implemented)*
+  - Mobile-friendly interface
+  - Touch-optimized controls
 
 ### 🚧 Planned Features
 
+* 🌐 Space Management (hierarchy view)
 * 📈 Advanced Analytics
 * 🌐 Federation Management
 * 📋 Logs & Audit
@@ -154,32 +173,17 @@ Manage your server from your phone. Yes, really.
 ### 👥 User Management
 
 ![User Management](screen/user_management.jpg)
-*Search & filter • Batch operations • Quick user actions*
-
-### ✏️ Edit User
-
-![Edit User](screen/edit_user.jpg)
-*Full profile control • Admin privileges • Account settings*
+*Search & filter • Batch operations • User profile cards*
 
 ### 👤 User Profile
 
 ![User Profile](screen/user_profile.jpg)
-*Detailed user info • Room memberships • Media usage*
+*Detailed user info • Account settings • Creation date*
 
 ### 🏠 Room Management
 
 ![Room Management](screen/room_management.jpg)
 *Room list • Search by name/ID • Quick moderation tools*
-
-### 🏠 Room Details
-
-![Room View](screen/room_view.jpg)
-*Room settings • Member list • Moderation actions*
-
-### 🌐 Space Management
-
-![Space Management](screen/space_management.jpg)
-*Space hierarchy • Child rooms • Space settings*
 
 ### 📁 Media Management
 
@@ -200,10 +204,10 @@ EN, RU, DE, FR, IT, ES, TR, ZH, JA, AR, HE
 Folder structure: `ept-mx-adm/`
 
 * `app.py` – main Flask app
-* `gunicorn.conf.py`, `requirements.txt`, `settings.py`
-* `blueprints/` – routes
-* `modules/` – core logic
-* `utils/` – helpers, logging, Matrix API
+* `gunicorn.conf.py`, `requirements.txt`, `config/settings.py`
+* `blueprints/` – routes (auth, users, rooms, spaces, media, api)
+* `modules/` – core logic (user management, room management, etc.)
+* `utils/` – helpers, logging, Matrix API client, i18n
 * `locales/` – translations (11 JSON files)
 * `static/`, `templates/`, `logs/`, `screen/`
 
@@ -214,6 +218,7 @@ Folder structure: `ept-mx-adm/`
 * **CPU:** Any modern processor
 * **OS:** Linux, macOS, Windows (with WSL)
 * **Network:** Access to Matrix homeserver
+* **Python:** 3.10+ required
 
 ## ⚡ Performance
 
@@ -221,14 +226,16 @@ Folder structure: `ept-mx-adm/`
 * Lazy loading for large datasets
 * Caching for repeated API calls
 * Average response time: <100ms
+* Efficient memory usage
 
 ## 🛠️ Built With
 
-* **Flask** - Because Django is overkill
-* **Bootstrap 5** - Modern, responsive, fast
-* **Chart.js** - Beautiful analytics
-* **No jQuery** - Pure vanilla JS
-* **No database** - Matrix is the database
+* **Flask** - Lightweight web framework
+* **Bootstrap 5** - Modern, responsive UI
+* **Chart.js** - Beautiful analytics charts
+* **Vanilla JavaScript** - No jQuery dependency
+* **Matrix Admin API** - Direct Synapse integration
+* **Gunicorn** - Production WSGI server
 
 ## 📊 EPT-MX-ADM vs Others
 
@@ -238,8 +245,11 @@ Folder structure: `ept-mx-adm/`
 | 11 Languages | ✅ | ❌ | ✅ |
 | Dark Mode | ✅ | ❌ | ✅ |
 | Mobile UI | ✅ | ❌ | ✅ |
-| Batch Operations | ✅ | ❌ | ❌ |
+| User Management | ✅ | ✅ | ❌ |
+| Room Management | ✅ | ✅ | ❌ |
+| Media Management | ✅ | ❌ | ❌ |
 | Real Analytics | ✅ | ❌ | ❌ |
+| Easy Setup | ✅ | ❌ | ❌ |
 
 ## 🚀 Quick Start
 
@@ -323,13 +333,18 @@ Use a reverse proxy (e.g., Nginx + HTTPS).
 **Connection refused?**
 → Check `SYNAPSE_URL` in settings matches your setup
 
-**Spaces showing as rooms?**
-→ Known Synapse Admin API limitation. Use Matrix Client API for accurate detection.
+**Rooms not loading?**
+→ Ensure Matrix Admin API is enabled in Synapse config
+
+**Media files not showing?**
+→ Check Synapse media repository configuration
 
 ## 🗺️ Roadmap
 
 ### v0.1.0 (Q1 2025)
 - [x] Room deletion functionality
+- [x] User management improvements
+- [x] Media management
 - [ ] Advanced room management (permissions, settings)
 - [ ] Space hierarchy view
 - [ ] Bulk user operations
@@ -338,11 +353,13 @@ Use a reverse proxy (e.g., Nginx + HTTPS).
 - [ ] Federation management
 - [ ] Advanced analytics
 - [ ] Export/import tools
+- [ ] Plugin system foundation
 
 ### v1.0.0 (Q3 2025)
 - [ ] Stable release
-- [ ] Plugin system
-- [ ] API documentation
+- [ ] Complete API documentation
+- [ ] Performance optimizations
+- [ ] Security audit
 
 ## 📝 License
 
