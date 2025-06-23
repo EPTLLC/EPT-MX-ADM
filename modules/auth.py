@@ -83,10 +83,31 @@ class AuthManager:
             logger.info(f"User {username} logged out")
     
     def _check_admin_status(self, username):
-        """Check if user is admin"""
+        """Check if user is admin via Matrix API"""
         try:
-            # Simple admin check - you can enhance this
-            session['is_admin'] = username in Config.ADMIN_USERS if hasattr(Config, 'ADMIN_USERS') else True
+            user_id = session.get('user_id')
+            access_token = session.get('access_token')
+            
+            if not user_id or not access_token:
+                session['is_admin'] = False
+                return
+            
+            # Check admin status via Matrix API
+            headers = {'Authorization': f'Bearer {access_token}'}
+            response = requests.get(
+                f"{Config.SYNAPSE_URL}/_synapse/admin/v1/users/{user_id}/admin",
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                admin_data = response.json()
+                session['is_admin'] = admin_data.get('admin', False)
+                logger.info(f"User {username} admin status: {session['is_admin']}")
+            else:
+                logger.warning(f"Failed to check admin status for {username}: {response.status_code}")
+                session['is_admin'] = False
+                
         except Exception as e:
             logger.error(f"Admin check error: {str(e)}")
             session['is_admin'] = False

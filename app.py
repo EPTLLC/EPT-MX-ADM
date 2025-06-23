@@ -25,6 +25,9 @@ from blueprints import register_blueprints
 
 def create_app():
     """Application factory"""
+    # Validate and auto-configure
+    Config.validate_config()
+    
     # Create Flask application
     app = Flask(__name__)
     app.config.from_object(Config)

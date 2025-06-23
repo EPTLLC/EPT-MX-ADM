@@ -8,6 +8,30 @@
 
 ---
 
+## 🌍 Ultra-Simple Configuration & Localization Fix (June 23, 2025)
+- **🎯 REVOLUTIONARY: config.json Configuration**: Replaced all hardcoded domains with single config.json file
+- **📁 One File Setup**: Only need to edit `matrix_server` in config.json - everything else auto-configured
+- **🔧 Auto-Path Detection**: Automatic detection of working directory, locales, logs - no manual paths needed
+- **🌐 Portable Installation**: Admin panel works in any folder, on any domain, with any Matrix server
+- **🌍 Localization System Fixed**: Fixed lazy initialization of translation system to work with dynamic config
+- **🚀 Zero Hardcoding**: Removed ALL hardcoded domains from codebase - truly universal setup
+- **📝 Simple Install Process**: Download → Edit 1 line in config.json → Run - that's it!
+- **🔄 Dynamic Configuration**: Config properties computed at runtime, not at import time
+- **🛠️ Backward Compatibility**: All existing functionality preserved while simplifying setup
+- **📚 Installation Documentation**: Created INSTALL.md with ultra-simple setup instructions
+
+## 🔧 Critical API & Authentication Fixes (June 23, 2025)
+- **🚨 MAJOR FIX: Matrix Admin API Access**: Fixed nginx configuration to properly route `/_synapse/admin` endpoints
+- **🔐 Real Admin Rights Verification**: Replaced broken `Config.ADMIN_USERS` check with actual Matrix API verification via `/_synapse/admin/v1/users/{user_id}/admin`
+- **✅ API Health Status Fixed**: All dashboard API status indicators now show correct green/red states instead of permanent errors
+- **🌐 CORS Headers Optimization**: Updated nginx regex from `/_synapse/client` to `/_synapse` to include all admin endpoints
+- **🔒 Secure Authentication Flow**: Only users with actual Matrix admin privileges can now access the admin panel
+- **📊 Dashboard API Connectivity**: Fixed Matrix API, Users API, and Rooms API connectivity issues
+- **🛡️ Enhanced Security**: Removed fallback admin access - only real Matrix admins can use the panel
+- **⚡ Automatic Configuration**: No manual path configuration needed - everything works out of the box
+- **🔍 Real-time Admin Check**: Admin status verified on every login via live Matrix API call
+- **📈 Performance Improvement**: Streamlined API client initialization and error handling
+
 ## 🏠 Room Management Fixes & Improvements (Latest Beta)
 - **🔧 Fixed Room Deletion**: Corrected SynapseAPIClient.delete() method to properly accept JSON parameters
 - **🚮 Simplified Room Actions**: Removed confusing "Clear Room" functionality that didn't work as expected

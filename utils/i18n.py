@@ -11,16 +11,23 @@ class I18n:
     """Internationalization manager"""
     
     def __init__(self):
-        self.locales_dir = Config.LOCALES_DIR
+        self.locales_dir = None
         self.default_locale = Config.DEFAULT_LOCALE
         self.logger = get_logger()
         self._translations = {}
-        self._load_translations()
+        self._initialized = False
+    
+    def _ensure_initialized(self):
+        """Ensure translations are loaded"""
+        if not self._initialized:
+            self.locales_dir = Config.LOCALES_DIR or os.path.join(Config.get_base_path(), 'locales')
+            self._load_translations()
+            self._initialized = True
     
     def _load_translations(self):
         """Load all translations"""
         try:
-            if not os.path.exists(self.locales_dir):
+            if not self.locales_dir or not os.path.exists(self.locales_dir):
                 self.logger.error(f"Locales directory not found: {self.locales_dir}")
                 return
                 
@@ -57,10 +64,13 @@ class I18n:
     
     def get_available_locales(self):
         """Get available locales"""
+        self._ensure_initialized()
         return list(self._translations.keys())
     
     def t(self, key, **kwargs):
         """Get translation by key"""
+        self._ensure_initialized()
+        
         locale = self.get_locale()
         translations = self._translations.get(locale, self._translations.get(self.default_locale, {}))
         

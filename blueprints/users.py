@@ -114,7 +114,7 @@ def create_user():
             username = username.strip()
 
             # Получаем домен из настроек
-            domain = Config.DOMAIN
+            domain = Config.get_domain()
             if not username.startswith('@'):
                 user_id = f"@{username}:{domain}"
             else:
@@ -310,7 +310,7 @@ def import_users():
             flash('No file selected', 'danger')
             return redirect(url_for('users.users'))
         
-        if not file.filename.lower().endswith('.csv'):
+        if not file.filename or not file.filename.lower().endswith('.csv'):
             flash('Please upload a CSV file', 'danger')
             return redirect(url_for('users.users'))
         
