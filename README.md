@@ -12,9 +12,10 @@ Modern administration panel for Matrix Synapse server
 
 **Created and maintained by [EasyProTech LLC](https://www.easypro.tech) • Developed by Brabus**
 
-![EPT-MX-ADM](https://img.shields.io/badge/Matrix-Admin-blue?style=flat-square)
+![CI/CD](https://github.com/EPTLLC/EPT-MX-ADM/workflows/CI%2FCD%20Pipeline/badge.svg)
 ![Python](https://img.shields.io/badge/Python-3.10+-green?style=flat-square)
 ![Flask](https://img.shields.io/badge/Flask-2.3+-red?style=flat-square)
+![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen?style=flat-square)
 ![Multilingual](https://img.shields.io/badge/i18n-11%20Languages-orange?style=flat-square)
 ![Beta](https://img.shields.io/badge/Status-BETA-yellow?style=flat-square)
 
@@ -70,6 +71,7 @@ This project is being developed in my spare time. There is **no support**, **no 
 Try EPT-MX-ADM live without installation:
 
 * **Demo URL:** [https://admin.matrix.easypro.tech/](https://admin.matrix.easypro.tech/)
+* **Documentation:** [https://eptllc.github.io/EPT-MX-ADM/](https://eptllc.github.io/EPT-MX-ADM/)
 * **Username:** `qwe`
 * **Password:** `qwe`
 

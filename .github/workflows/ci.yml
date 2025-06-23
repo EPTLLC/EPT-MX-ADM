@@ -32,19 +32,16 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install pytest flask
+        python -m pip install pytest pytest-cov flask flake8
     
-    - name: Debug info
+    - name: Lint with flake8
       run: |
-        python --version
-        pip --version
-        python -c "import pytest; print(f'pytest version: {pytest.__version__}')"
-        ls -la
-        pwd
+        flake8 . --count --max-line-length=127 --statistics --exclude=static/vendor
+      continue-on-error: true
     
-    - name: Test with pytest
+    - name: Run tests
       run: |
-        python -m pytest simple_test.py -v
+        python -m pytest simple_test.py tests/test_minimal.py -v --cov=. --cov-report=term-missing
     
 
 

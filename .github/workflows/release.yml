@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      
+      - name: Create release package
+        run: |
+          mkdir -p dist
+          tar -czf dist/ept-mx-adm-${{ github.ref_name }}.tar.gz \
+            --exclude='.git*' \
+            --exclude='tests' \
+            --exclude='*.pyc' \
+            --exclude='__pycache__' \
+            --exclude='venv' \
+            --exclude='dist' \
+            .
+      
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: EPT-MX-ADM ${{ github.ref_name }}
+          body: |
+            ## Changes
+            
+            See [CHANGELOG.md](CHANGELOG.md) for details.
+            
+            ## Installation
+            
+            ```bash
+            wget https://github.com/EPTLLC/EPT-MX-ADM/releases/download/${{ github.ref_name }}/ept-mx-adm-${{ github.ref_name }}.tar.gz
+            tar -xzf ept-mx-adm-${{ github.ref_name }}.tar.gz
+            cd EPT-MX-ADM
+            pip install -r requirements.txt
+            python app.py
+            ```
+          draft: false
+          prerelease: false 

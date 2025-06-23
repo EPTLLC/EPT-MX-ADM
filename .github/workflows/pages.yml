@@ -1,0 +1,88 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Create documentation
+        run: |
+          mkdir -p docs
+          cp README.md docs/index.md
+          cp TESTING.md docs/testing.md
+          cp CONTRIBUTING.md docs/contributing.md
+          
+          # Create simple HTML index
+          cat > docs/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>EPT-MX-ADM Documentation</title>
+              <meta charset="utf-8">
+              <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px; }
+                  .badge { display: inline-block; margin: 2px; }
+                  pre { background: #f6f8fa; padding: 16px; border-radius: 6px; overflow-x: auto; }
+              </style>
+          </head>
+          <body>
+              <h1>EPT-MX-ADM Documentation</h1>
+              
+              <div>
+                  <img src="https://github.com/EPTLLC/EPT-MX-ADM/workflows/CI%2FCD%20Pipeline/badge.svg" class="badge">
+                  <img src="https://img.shields.io/badge/Python-3.10+-green?style=flat-square" class="badge">
+                  <img src="https://img.shields.io/badge/Tests-Passing-brightgreen?style=flat-square" class="badge">
+              </div>
+              
+              <p>Modern administration panel for Matrix Synapse server</p>
+              
+              <h2>Quick Links</h2>
+              <ul>
+                  <li><a href="https://github.com/EPTLLC/EPT-MX-ADM">GitHub Repository</a></li>
+                  <li><a href="https://admin.matrix.easypro.tech/">Live Demo</a></li>
+                  <li><a href="testing.html">Testing Guide</a></li>
+                  <li><a href="contributing.html">Contributing</a></li>
+              </ul>
+              
+              <h2>Features</h2>
+              <ul>
+                  <li>User Management</li>
+                  <li>Room Management</li>
+                  <li>Media Management</li>
+                  <li>11 Languages Support</li>
+                  <li>Modern UI</li>
+              </ul>
+          </body>
+          </html>
+          EOF
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './docs'
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 
