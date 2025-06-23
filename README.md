@@ -71,7 +71,6 @@ This project is being developed in my spare time. There is **no support**, **no 
 Try EPT-MX-ADM live without installation:
 
 * **Demo URL:** [https://admin.matrix.easypro.tech/](https://admin.matrix.easypro.tech/)
-* **Documentation:** [https://eptllc.github.io/EPT-MX-ADM/](https://eptllc.github.io/EPT-MX-ADM/)
 * **Username:** `qwe`
 * **Password:** `qwe`
 

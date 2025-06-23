@@ -30,16 +30,13 @@ jobs:
             .
       
       - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: EPT-MX-ADM ${{ github.ref_name }}
+          name: EPT-MX-ADM ${{ github.ref_name }}
           body: |
-            ## Changes
+            ## EPT-MX-ADM Release ${{ github.ref_name }}
             
-            See [CHANGELOG.md](CHANGELOG.md) for details.
+            Modern administration panel for Matrix Synapse server.
             
             ## Installation
             
@@ -50,5 +47,6 @@ jobs:
             pip install -r requirements.txt
             python app.py
             ```
+          files: dist/*
           draft: false
           prerelease: false 
