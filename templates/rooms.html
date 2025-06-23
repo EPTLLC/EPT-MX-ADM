@@ -51,8 +51,8 @@
             </div>
         </div>
         
-        <!-- Фильтры и поиск в красивой карточке -->
-        <div class="search-filters-card">
+        <!-- Фильтры и поиск -->
+        <div class="card">
             <div class="card-header">
                 <i class="bi bi-funnel me-2"></i>
                 <span>Search & Filters</span>
@@ -106,9 +106,9 @@
     {% if rooms_data.rooms %}
     <div class="rooms-grid">
         {% for room in rooms_data.rooms %}
-        <div class="room-card">
-            <div class="room-card-header">
-                <div class="room-avatar">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <div class="room-avatar me-3">
                     {% if room.avatar_url %}
                     <img src="{{ room.avatar_url }}" class="avatar-image" alt="Room Avatar">
                     {% else %}
@@ -117,92 +117,48 @@
                     </div>
                     {% endif %}
                 </div>
-                <div class="room-info">
-                    <div class="room-name">{{ room.name or room.canonical_alias or (room.room_id[:20] + '...') }}</div>
+                <div class="flex-grow-1">
+                    <div class="fw-semibold">{{ room.name or room.canonical_alias or (room.room_id[:20] + '...') }}</div>
                     {% if room.topic %}
-                    <div class="room-topic">{{ room.topic[:80] }}{% if room.topic|length > 80 %}...{% endif %}</div>
+                    <div class="text-muted small">{{ room.topic[:80] }}{% if room.topic|length > 80 %}...{% endif %}</div>
                     {% endif %}
-                    <div class="room-id">{{ room.room_id[:30] }}...</div>
+                    <div class="text-muted small">{{ room.room_id[:30] }}...</div>
                 </div>
-                <div class="room-badges">
+                <div class="d-flex flex-column align-items-end gap-1">
                     {% if room.encrypted %}
-                        <span class="status-badge encrypted">
-                            <i class="bi bi-shield-lock"></i>
-                            Encrypted
-                        </span>
+                        <span class="badge bg-info"><i class="bi bi-shield-lock"></i> Encrypted</span>
                     {% endif %}
                     {% if room.federated %}
-                        <span class="status-badge federated">
-                            <i class="bi bi-globe"></i>
-                            Federated
-                        </span>
+                        <span class="badge bg-primary"><i class="bi bi-globe"></i> Federated</span>
                     {% endif %}
                     {% if room.in_directory %}
-                        <span class="status-badge public">
-                            <i class="bi bi-book"></i>
-                            Public
-                        </span>
+                        <span class="badge bg-success"><i class="bi bi-book"></i> Public</span>
                     {% endif %}
                 </div>
             </div>
-            
-            <div class="room-card-body">
-                <div class="room-stats">
-                    <div class="stat-item">
-                        <i class="bi bi-people"></i>
-                        <span class="stat-value">{{ room.joined_members or 0 }}</span>
-                        <span class="stat-label">Members</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="bi bi-house-heart"></i>
-                        <span class="stat-value">{{ room.local_members or 0 }}</span>
-                        <span class="stat-label">Local</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="bi bi-layers"></i>
-                        <span class="stat-value">{{ room.state_events or 0 }}</span>
-                        <span class="stat-label">Events</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="bi bi-tag"></i>
-                        <span class="stat-value">v{{ room.room_version or '1' }}</span>
-                        <span class="stat-label">Version</span>
-                    </div>
+            <div class="card-body">
+                <div class="d-flex gap-3 mb-2">
+                    <div><i class="bi bi-people"></i> {{ room.joined_members or 0 }} <span class="text-muted small">Members</span></div>
+                    <div><i class="bi bi-house-heart"></i> {{ room.local_members or 0 }} <span class="text-muted small">Local</span></div>
+                    <div><i class="bi bi-layers"></i> {{ room.state_events or 0 }} <span class="text-muted small">Events</span></div>
+                    <div><i class="bi bi-tag"></i> v{{ room.room_version or '1' }} <span class="text-muted small">Version</span></div>
                 </div>
-                
-                <div class="room-meta">
-                    {% if room.creator and room.creator != 'Unknown' %}
-                    <div class="meta-item">
-                        <i class="bi bi-person-plus"></i>
-                        <span>Created by: <a href="{{ url_for('users.edit_user', user_id=room.creator) }}" class="creator-link">{{ room.creator }}</a></span>
-                    </div>
-                    {% endif %}
-                    {% if room.creation_ts %}
-                    <div class="meta-item">
-                        <i class="bi bi-calendar-plus"></i>
-                        <span>{{ room.creation_ts | datetime_format }}</span>
-                    </div>
-                    {% endif %}
-                </div>
+                {% if room.creator and room.creator != 'Unknown' %}
+                <div class="text-muted small mb-1"><i class="bi bi-person-plus"></i> Created by: <a href="{{ url_for('users.edit_user', user_id=room.creator) }}" class="creator-link">{{ room.creator }}</a></div>
+                {% endif %}
+                {% if room.creation_ts %}
+                <div class="text-muted small"><i class="bi bi-calendar-plus"></i> {{ room.creation_ts | datetime_format }}</div>
+                {% endif %}
             </div>
-            
-            <div class="room-card-actions">
-                <button type="button" 
-                        class="action-btn primary" 
-                        onclick="viewRoom('{{ room.room_id }}')"
-                        title="{{ t('rooms.view') }}">
+            <div class="card-footer d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="viewRoom('{{ room.room_id }}')" title="{{ t('rooms.view') }}">
                     <i class="bi bi-eye"></i>
                 </button>
-                <button type="button" 
-                        class="action-btn warning" 
-                        onclick="editRoom('{{ room.room_id }}')"
-                        title="{{ t('rooms.edit') }}">
+                <button type="button" class="btn btn-outline-warning btn-sm" onclick="editRoom('{{ room.room_id }}')" title="{{ t('rooms.edit') }}">
                     <i class="bi bi-pencil"></i>
                 </button>
                 <div class="dropdown">
-                    <button type="button" 
-                            class="action-btn danger dropdown-toggle" 
-                            data-bs-toggle="dropdown">
+                    <button type="button" class="btn btn-outline-danger btn-sm dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="bi bi-gear"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">

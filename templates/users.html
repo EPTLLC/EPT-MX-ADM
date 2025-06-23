@@ -33,7 +33,7 @@
         </div>
         
         <!-- Фильтры и поиск в красивой карточке -->
-        <div class="search-filters-card">
+        <div class="card">
             <div class="card-header">
                 <i class="bi bi-funnel me-2"></i>
                 <span>Filters & Search</span>
@@ -94,78 +94,53 @@
     {% if users %}
     <div class="users-grid">
         {% for user in users %}
-        <div class="user-card">
-            <div class="user-card-header">
-                <div class="user-avatar">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <div class="user-avatar me-3">
                     <div class="avatar-circle">
                         <i class="bi bi-person-fill"></i>
                     </div>
                 </div>
-                <div class="user-info">
-                    <div class="user-name">{{ user.displayname or user.name.split(':')[0][1:] }}</div>
-                    <div class="user-id">{{ user.name }}</div>
+                <div class="flex-grow-1">
+                    <div class="fw-semibold">{{ user.displayname or user.name.split(':')[0][1:] }}</div>
+                    <div class="text-muted small">{{ user.name }}</div>
                 </div>
-                <div class="user-badges">
+                <div class="d-flex flex-column align-items-end gap-1">
                     {% if user.admin %}
-                        <span class="status-badge admin">
-                            <i class="bi bi-shield-fill"></i>
-                            {{ t('users.admin') }}
-                        </span>
+                        <span class="badge bg-danger"><i class="bi bi-shield-fill"></i> {{ t('users.admin') }}</span>
                     {% else %}
-                        <span class="status-badge user">
-                            <i class="bi bi-person"></i>
-                            {{ t('forms.user') }}
-                        </span>
+                        <span class="badge bg-secondary"><i class="bi bi-person"></i> {{ t('forms.user') }}</span>
                     {% endif %}
                     {% if user.deactivated %}
-                        <span class="status-badge inactive">
-                            <i class="bi bi-x-circle"></i>
-                            {{ t('users.deactivated') }}
-                        </span>
+                        <span class="badge bg-warning"><i class="bi bi-x-circle"></i> {{ t('users.deactivated') }}</span>
                     {% else %}
-                        <span class="status-badge active">
-                            <i class="bi bi-check-circle"></i>
-                            {{ t('users.active') }}
-                        </span>
+                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> {{ t('users.active') }}</span>
                     {% endif %}
                 </div>
             </div>
-            
-            <div class="user-card-body">
-                <div class="user-meta">
-                    {% if user.creation_ts %}
-                    <div class="meta-item">
-                        <i class="bi bi-calendar-plus"></i>
-                        <span>{{ user.creation_ts | datetime_format }}</span>
-                    </div>
-                    {% endif %}
+            <div class="card-body">
+                {% if user.creation_ts %}
+                <div class="mb-2 text-muted small">
+                    <i class="bi bi-calendar-plus"></i> {{ user.creation_ts | datetime_format }}
                 </div>
+                {% endif %}
             </div>
-            
-            <div class="user-card-actions">
-                <button type="button" 
-                        class="action-btn info" 
-                        onclick="showUserWhois('{{ user.name }}')"
-                        title="{{ t('users.view_profile') }}">
+            <div class="card-footer d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-outline-info btn-sm" onclick="showUserWhois('{{ user.name }}')" title="{{ t('users.view_profile') }}">
                     <i class="bi bi-eye"></i>
                 </button>
-                <a href="{{ url_for('users.edit_user', user_id=user.name) }}" 
-                   class="action-btn warning" 
-                   title="{{ t('users.edit_user') }}">
+                <a href="{{ url_for('users.edit_user', user_id=user.name) }}" class="btn btn-outline-warning btn-sm" title="{{ t('users.edit_user') }}">
                     <i class="bi bi-pencil"></i>
                 </a>
                 {% if not user.admin %}
                 <div class="dropdown">
-                    <button type="button" 
-                            class="action-btn danger dropdown-toggle" 
-                            data-bs-toggle="dropdown">
+                    <button type="button" class="btn btn-outline-danger btn-sm dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="bi bi-gear"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <form method="POST" action="{{ url_for('users.deactivate_user', user_id=user.name) }}">
-                                <button type="submit" class="dropdown-item text-warning"
-                                         onclick="return confirm('Deactivate user {{ user.name }}?')">
+                                <button type="submit" class="dropdown-item text-warning" onclick="return confirm('Deactivate user {{ user.name }}?')">
                                     <i class="bi bi-pause-circle me-2"></i>{{ t('users.deactivate') }}
                                 </button>
                             </form>
@@ -173,8 +148,7 @@
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <form method="POST" action="{{ url_for('users.delete_user', user_id=user.name) }}">
-                                <button type="submit" class="dropdown-item text-danger"
-                                         onclick="return confirm('Delete user {{ user.name }}? This action cannot be undone!')">
+                                <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Delete user {{ user.name }}? This action cannot be undone!')">
                                     <i class="bi bi-trash me-2"></i>{{ t('users.delete') }}
                                 </button>
                             </form>
