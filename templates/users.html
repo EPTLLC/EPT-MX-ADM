@@ -129,14 +129,14 @@
                 <button type="button" class="btn btn-outline-info btn-sm" 
                         onclick="showUserWhois('{{ user.name }}')" 
                         data-bs-toggle="tooltip" 
-                        data-bs-placement="bottom" 
+                        data-bs-placement="top" 
                         data-bs-title="{{ t('users.view_profile') }}">
                     <i class="bi bi-eye"></i>
                 </button>
                 <a href="{{ url_for('users.edit_user', user_id=user.name) }}" 
                    class="btn btn-outline-warning btn-sm" 
                    data-bs-toggle="tooltip" 
-                   data-bs-placement="bottom" 
+                   data-bs-placement="top" 
                    data-bs-title="{{ t('users.edit_user') }}">
                     <i class="bi bi-pencil"></i>
                 </a>
@@ -383,8 +383,8 @@ function displayUserInfo(whois, userId) {
     const userInfoTooltips = content.querySelectorAll('[data-bs-toggle="tooltip"]');
     userInfoTooltips.forEach(el => new bootstrap.Tooltip(el, {
         delay: { show: 300, hide: 100 },
-        placement: 'bottom',
-        fallbackPlacements: ['top', 'right', 'left']
+        placement: 'top',
+        fallbackPlacements: ['bottom', 'right', 'left']
     }));
 }
 
@@ -427,7 +427,7 @@ function displayUserMedia(mediaData, userId) {
         '<div class="p-4">' +
             '<div class="d-flex justify-content-between align-items-center mb-4">' +
                 '<h4 class="text-gradient"><i class="bi bi-file-earmark-image me-2"></i>{{ t("users.media_files") }} - ' + userId + '</h4>' +
-                '<button class="btn btn-outline-primary btn-sm hover-lift" onclick="showUserWhois(\'' + userId + '\')" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="{{ t("forms.back_to_profile") }}">' +
+                '<button class="btn btn-outline-primary btn-sm hover-lift" onclick="showUserWhois(\'' + userId + '\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ t("forms.back_to_profile") }}">' +
                     '<i class="bi bi-arrow-left me-2"></i>{{ t("forms.back_to_profile") }}' +
                 '</button>' +
             '</div>';
@@ -454,8 +454,8 @@ function displayUserMedia(mediaData, userId) {
     const userMediaTooltips = content.querySelectorAll('[data-bs-toggle="tooltip"]');
     userMediaTooltips.forEach(el => new bootstrap.Tooltip(el, {
         delay: { show: 300, hide: 100 },
-        placement: 'bottom',
-        fallbackPlacements: ['top', 'right', 'left']
+        placement: 'top',
+        fallbackPlacements: ['bottom', 'right', 'left']
     }));
 }
 
@@ -469,8 +469,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl, {
         delay: { show: 300, hide: 100 },
-        placement: 'bottom',
-        fallbackPlacements: ['top', 'right', 'left']
+        placement: 'top',
+        fallbackPlacements: ['bottom', 'right', 'left']
     }));
 });
 </script>
