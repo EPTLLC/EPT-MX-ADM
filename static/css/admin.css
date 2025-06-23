@@ -90,7 +90,7 @@
     --z-modal-backdrop: 1040;
     --z-modal: 1050;
     --z-popover: 1060;
-    --z-tooltip: 1070;
+    --z-tooltip: 9998; /* Очень высокий z-index для tooltip */
     --z-language: 9999; /* Языковое меню поверх всего */
 }
 
@@ -444,8 +444,17 @@ body {
    ========================================================================== */
 
 .tooltip {
-    z-index: var(--z-tooltip);
+    z-index: var(--z-tooltip) !important;
     font-family: var(--font-family);
+}
+
+/* Force tooltip z-index override */
+.tooltip.show {
+    z-index: 9998 !important;
+}
+
+.bs-tooltip-top, .bs-tooltip-bottom, .bs-tooltip-start, .bs-tooltip-end {
+    z-index: 9998 !important;
 }
 
 .tooltip .tooltip-inner {

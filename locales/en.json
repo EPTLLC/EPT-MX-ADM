@@ -151,7 +151,18 @@
     "choose_file": "Choose File",
     "upload": "Upload",
     "filters": "Filters",
-    "per_page": "Per Page"
+    "per_page": "Per Page",
+    "view_profile": "View Profile",
+    "csv_format_help": "CSV format: username,displayname,password,admin",
+    "view_media": "View Media",
+    "account_information": "Account Information",
+    "not_specified": "Not specified",
+    "administrator": "Administrator",
+    "regular_user": "Regular User",
+    "media_files": "Media Files",
+    "no_media_files": "No media files",
+    "no_media_description": "This user has no uploaded media files",
+    "media_count": "Media count"
   },
   
   "rooms": {
@@ -244,7 +255,8 @@
     "back_to_list": "Back to List",
     "save_changes": "Save Changes",
     "user": "User",
-    "copy": "Copy"
+    "copy": "Copy",
+    "back_to_profile": "Back to Profile"
   },
   
   "messages": {
@@ -262,7 +274,10 @@
     "not_found": "Not found",
     "not_specified": "Not specified",
     "unknown": "Unknown",
-    "try_different_search": "Try a different search"
+    "try_different_search": "Try a different search",
+    "unknown_error": "Unknown error",
+    "loading_media": "Loading media files...",
+    "error_loading_media": "Error loading media files"
   },
   
   "pagination": {
