@@ -3,195 +3,230 @@
 {% block title %}{{ t('users.title') }} - {{ t('app.name') }}{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2"><i class="bi bi-people"></i> {{ t('users.title') }}</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" data-refresh>
-                <i class="bi bi-arrow-clockwise"></i> {{ t('dashboard.refresh') }}
-            </button>
-        </div>
-        <div class="btn-group me-2">
-            <a href="{{ url_for('users.export_users', search=search, guests=show_guests, deactivated=show_deactivated) }}" 
-               class="btn btn-sm btn-outline-success">
-                <i class="bi bi-file-earmark-arrow-down"></i> {{ t('users.csv_export') }}
-            </a>
-            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importModal">
-                <i class="bi bi-file-earmark-arrow-up"></i> {{ t('users.csv_import') }}
-            </button>
-        </div>
-        <a href="{{ url_for('users.create_user') }}" class="btn btn-sm btn-primary">
-            <i class="bi bi-person-plus"></i> {{ t('users.create_user') }}
-        </a>
-    </div>
-</div>
-
-<!-- Filters and Search -->
-<div class="row mb-3">
-    <div class="col-md-6">
-        <form method="GET" id="filtersForm">
-            <div class="input-group">
-                <input type="text" class="form-control" name="search" value="{{ search }}" 
-                       placeholder="{{ t('users.search_placeholder') }}">
-                <button class="btn btn-outline-secondary" type="submit">
-                    <i class="bi bi-search"></i>
+<div class="fade-in-up">
+    <!-- Заголовок страницы с кнопками -->
+    <div class="header-section mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h2 text-gradient mb-0">
+                <i class="bi bi-people me-2"></i>{{ t('users.title') }}
+                {% if total %}
+                <span class="badge bg-primary ms-2">{{ total }}</span>
+                {% endif %}
+            </h1>
+            <div class="header-actions">
+                <button type="button" class="btn btn-outline-primary me-2" data-refresh>
+                    <i class="bi bi-arrow-clockwise me-1"></i>{{ t('dashboard.refresh') }}
                 </button>
+                <div class="btn-group me-2">
+                    <a href="{{ url_for('users.export_users', search=search, guests=show_guests, deactivated=show_deactivated) }}" 
+                       class="btn btn-success">
+                        <i class="bi bi-file-earmark-arrow-down me-1"></i>{{ t('users.csv_export') }}
+                    </a>
+                    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#importModal">
+                        <i class="bi bi-file-earmark-arrow-up me-1"></i>{{ t('users.csv_import') }}
+                    </button>
+                </div>
+                <a href="{{ url_for('users.create_user') }}" class="btn btn-primary">
+                    <i class="bi bi-person-plus me-1"></i>{{ t('users.create_user') }}
+                </a>
             </div>
-            <input type="hidden" name="limit" value="{{ limit }}">
-            <input type="hidden" name="guests" value="{{ 'true' if show_guests else 'false' }}">
-            <input type="hidden" name="deactivated" value="{{ 'true' if show_deactivated else 'false' }}">
-        </form>
-    </div>
-    <div class="col-md-6">
-        <div class="d-flex justify-content-end align-items-center gap-3">
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="showGuests" 
-                       {{ 'checked' if show_guests else '' }} onchange="toggleFilter('guests', this.checked)">
-                <label class="form-check-label" for="showGuests">
-                    {{ t('users.show_guests') }}
-                </label>
-            </div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="showDeactivated" 
-                       {{ 'checked' if show_deactivated else '' }} onchange="toggleFilter('deactivated', this.checked)">
-                <label class="form-check-label" for="showDeactivated">
-                    {{ t('users.show_deactivated') }}
-                </label>
-            </div>
-            <div class="d-flex align-items-center">
-                <label class="form-label me-2 mb-0">{{ t('pagination.rows_per_page') }}:</label>
-                <select class="form-select form-select-sm" style="width: auto;" onchange="changeLimit(this.value)">
-                    <option value="10" {{ 'selected' if limit == 10 else '' }}>10</option>
-                    <option value="25" {{ 'selected' if limit == 25 else '' }}>25</option>
-                    <option value="50" {{ 'selected' if limit == 50 else '' }}>50</option>
-                    <option value="100" {{ 'selected' if limit == 100 else '' }}>100</option>
-                </select>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Users Table -->
-<div class="card shadow">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th><i class="bi bi-person-circle"></i></th>
-                        <th>{{ t('users.user_id') }}</th>
-                        <th>{{ t('users.display_name') }}</th>
-                        <th>{{ t('users.admin') }}</th>
-                        <th>{{ t('users.active') }}</th>
-                        <th>{{ t('users.created') }}</th>
-                        <th>{{ t('users.actions') }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr>
-                        <td>
-                            <i class="bi bi-person-circle text-primary"></i>
-                        </td>
-                        <td>
-                            <strong>{{ user.name }}</strong>
-                        </td>
-                        <td>{{ user.displayname or '-' }}</td>
-                        <td>
-                            {% if user.admin %}
-                                <span class="badge bg-danger">{{ t('users.admin') }}</span>
-                            {% else %}
-                                <span class="badge bg-secondary">{{ t('forms.user') }}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if user.deactivated %}
-                                <span class="badge bg-warning">{{ t('users.deactivated') }}</span>
-                            {% else %}
-                                <span class="badge bg-success">{{ t('users.active') }}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if user.creation_ts %}
-                                {{ (user.creation_ts / 1000) | int | datetime_format }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <button type="button" 
-                                        class="btn btn-outline-info" 
-                                        onclick="showUserWhois('{{ user.name }}')"
-                                        title="User Information">
-                                    <i class="bi bi-info-circle"></i>
-                                </button>
-                                <a href="{{ url_for('users.edit_user', user_id=user.name) }}" 
-                                   class="btn btn-outline-warning" title="Edit User">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                {% if not user.admin %}
-                                <form method="POST" action="{{ url_for('users.deactivate_user', user_id=user.name) }}" 
-                                      style="display: inline;">
-                                    <button type="submit" class="btn btn-outline-warning" title="Deactivate"
-                                            onclick="return confirm('Deactivate user {{ user.name }}?')">
-                                        <i class="bi bi-x-circle"></i>
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ url_for('users.delete_user', user_id=user.name) }}" 
-                                      style="display: inline;">
-                                    <button type="submit" class="btn btn-outline-danger" title="Delete User"
-                                            onclick="return confirm('PERMANENTLY DELETE user {{ user.name }}? This action cannot be undone!')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">
-                            <i class="bi bi-inbox"></i> {{ t('users.no_users') }}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
         
-        <!-- Pagination -->
-        {% if total > 0 %}
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <div>
-                <small class="text-muted">
-                    {{ t('pagination.showing') }} 
-                    {{ ((current_page - 1) * limit + 1) if users else 0 }} - 
-                    {{ (current_page * limit) if (current_page * limit) < total else total }} 
-                    {{ t('pagination.of') }} {{ total }} {{ t('pagination.entries') }}
-                </small>
+        <!-- Фильтры и поиск в красивой карточке -->
+        <div class="search-filters-card">
+            <div class="card-header">
+                <i class="bi bi-funnel me-2"></i>
+                <span>Filters & Search</span>
+            </div>
+            <div class="card-body">
+                <form method="GET" id="filtersForm">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label">{{ t('forms.search') }}</label>
+                            <div class="search-box">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" class="form-control" name="search" value="{{ search }}" 
+                                       placeholder="{{ t('users.search_placeholder') }}">
+                            </div>
+                            <input type="hidden" name="limit" value="{{ limit }}">
+                            <input type="hidden" name="guests" value="{{ 'true' if show_guests else 'false' }}">
+                            <input type="hidden" name="deactivated" value="{{ 'true' if show_deactivated else 'false' }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">{{ t('pagination.rows_per_page') }}</label>
+                            <select class="form-select" onchange="changeLimit(this.value)">
+                                <option value="10" {{ 'selected' if limit == 10 else '' }}>10</option>
+                                <option value="25" {{ 'selected' if limit == 25 else '' }}>25</option>
+                                <option value="50" {{ 'selected' if limit == 50 else '' }}>50</option>
+                                <option value="100" {{ 'selected' if limit == 100 else '' }}>100</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="filter-switches">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="showGuests" 
+                                           {{ 'checked' if show_guests else '' }} onchange="toggleFilter('guests', this.checked)">
+                                    <label class="form-check-label" for="showGuests">
+                                        {{ t('users.show_guests') }}
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="showDeactivated" 
+                                           {{ 'checked' if show_deactivated else '' }} onchange="toggleFilter('deactivated', this.checked)">
+                                    <label class="form-check-label" for="showDeactivated">
+                                        {{ t('users.show_deactivated') }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search me-1"></i>{{ t('forms.search') }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
+
+    <!-- Список пользователей в виде карточек -->
+    {% if users %}
+    <div class="users-grid">
+        {% for user in users %}
+        <div class="user-card">
+            <div class="user-card-header">
+                <div class="user-avatar">
+                    <div class="avatar-circle">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.displayname or user.name.split(':')[0][1:] }}</div>
+                    <div class="user-id">{{ user.name }}</div>
+                </div>
+                <div class="user-badges">
+                    {% if user.admin %}
+                        <span class="status-badge admin">
+                            <i class="bi bi-shield-fill"></i>
+                            {{ t('users.admin') }}
+                        </span>
+                    {% else %}
+                        <span class="status-badge user">
+                            <i class="bi bi-person"></i>
+                            {{ t('forms.user') }}
+                        </span>
+                    {% endif %}
+                    {% if user.deactivated %}
+                        <span class="status-badge inactive">
+                            <i class="bi bi-x-circle"></i>
+                            {{ t('users.deactivated') }}
+                        </span>
+                    {% else %}
+                        <span class="status-badge active">
+                            <i class="bi bi-check-circle"></i>
+                            {{ t('users.active') }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="user-card-body">
+                <div class="user-meta">
+                    {% if user.creation_ts %}
+                    <div class="meta-item">
+                        <i class="bi bi-calendar-plus"></i>
+                        <span>{{ user.creation_ts | datetime_format }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="user-card-actions">
+                <button type="button" 
+                        class="action-btn info" 
+                        onclick="showUserWhois('{{ user.name }}')"
+                        title="{{ t('users.view_profile') }}">
+                    <i class="bi bi-eye"></i>
+                </button>
+                <a href="{{ url_for('users.edit_user', user_id=user.name) }}" 
+                   class="action-btn warning" 
+                   title="{{ t('users.edit_user') }}">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                {% if not user.admin %}
+                <div class="dropdown">
+                    <button type="button" 
+                            class="action-btn danger dropdown-toggle" 
+                            data-bs-toggle="dropdown">
+                        <i class="bi bi-gear"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <form method="POST" action="{{ url_for('users.deactivate_user', user_id=user.name) }}">
+                                <button type="submit" class="dropdown-item text-warning"
+                                         onclick="return confirm('Deactivate user {{ user.name }}?')">
+                                    <i class="bi bi-pause-circle me-2"></i>{{ t('users.deactivate') }}
+                                </button>
+                            </form>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="{{ url_for('users.delete_user', user_id=user.name) }}">
+                                <button type="submit" class="dropdown-item text-danger"
+                                         onclick="return confirm('Delete user {{ user.name }}? This action cannot be undone!')">
+                                    <i class="bi bi-trash me-2"></i>{{ t('users.delete') }}
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-inbox"></i>
+        </div>
+        <h5>{{ t('users.no_users') }}</h5>
+        {% if search %}
+        <p>{{ t('messages.try_different_search') }}</p>
+        <button type="button" class="btn btn-outline-primary" onclick="clearSearch()">
+            {{ t('forms.show_all') }}
+        </button>
         {% endif %}
     </div>
+    {% endif %}
+    
+    <!-- Пагинация -->
+    {% if total > 0 %}
+    <div class="pagination-info">
+        <div class="pagination-text">
+            {{ t('pagination.showing') }} 
+            {{ ((current_page - 1) * limit + 1) if users else 0 }} - 
+            {{ (current_page * limit) if (current_page * limit) < total else total }} 
+            {{ t('pagination.of') }} {{ total }} {{ t('pagination.entries') }}
+        </div>
+    </div>
+    {% endif %}
 </div>
 
-<!-- User Info Modal -->
+<!-- Модальное окно профиля пользователя -->
 <div class="modal fade" id="userWhoisModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="bi bi-person-badge me-2"></i>
-                    {{ t('users.user_profile') }}
+        <div class="modal-content glass-effect">
+            <div class="modal-header">
+                <h5 class="modal-title text-gradient">
+                    <i class="bi bi-person-badge me-2"></i>{{ t('users.user_profile') }}
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-0" id="whoisContent">
                 <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">{{ t('messages.loading') }}...</span>
-                    </div>
+                    <div class="loading"></div>
                     <div class="mt-3">{{ t('messages.loading') }}...</div>
                 </div>
             </div>
@@ -199,14 +234,13 @@
     </div>
 </div>
 
-<!-- CSV Import Modal -->
+<!-- Модальное окно импорта CSV -->
 <div class="modal fade" id="importModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content glass-effect">
             <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-file-earmark-arrow-up me-2"></i>
-                    {{ t('users.import_users') }}
+                <h5 class="modal-title text-gradient">
+                    <i class="bi bi-file-earmark-arrow-up me-2"></i>{{ t('users.import_users') }}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -215,12 +249,15 @@
                     <div class="mb-3">
                         <label for="csv_file" class="form-label">{{ t('users.choose_file') }}</label>
                         <input type="file" class="form-control" name="csv_file" accept=".csv" required>
+                        <div class="form-text">{{ t('users.csv_format_help') }}</div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t('forms.cancel') }}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        {{ t('forms.cancel') }}
+                    </button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-upload"></i> {{ t('users.upload') }}
+                        <i class="bi bi-upload me-1"></i>{{ t('users.upload') }}
                     </button>
                 </div>
             </form>
@@ -245,16 +282,20 @@ function changeLimit(newLimit) {
     window.location.href = url.toString();
 }
 
+function clearSearch() {
+    const url = new URL(window.location);
+    url.searchParams.delete('search');
+    window.location.href = url.toString();
+}
+
 function showUserWhois(userId) {
     const modal = new bootstrap.Modal(document.getElementById('userWhoisModal'));
     const content = document.getElementById('whoisContent');
     
     content.innerHTML = 
         '<div class="text-center py-5">' +
-            '<div class="spinner-border text-primary" role="status">' +
-                '<span class="visually-hidden">Loading...</span>' +
-            '</div>' +
-            '<div class="mt-3">Loading user information...</div>' +
+            '<div class="loading"></div>' +
+            '<div class="mt-3">{{ t("messages.loading") }}...</div>' +
         '</div>';
     
     modal.show();
@@ -269,7 +310,7 @@ function showUserWhois(userId) {
                 content.innerHTML = 
                     '<div class="alert alert-danger m-4">' +
                         '<i class="bi bi-exclamation-triangle me-2"></i>' +
-                        'Error: ' + (data.error || 'Unknown error') +
+                        '{{ t("messages.error") }}: ' + (data.error || '{{ t("messages.unknown_error") }}') +
                     '</div>';
             }
         })
@@ -277,7 +318,7 @@ function showUserWhois(userId) {
             content.innerHTML = 
                 '<div class="alert alert-danger m-4">' +
                     '<i class="bi bi-exclamation-triangle me-2"></i>' +
-                    'Network error: ' + error.message +
+                    '{{ t("messages.network_error") }}: ' + error.message +
                 '</div>';
         });
 }
@@ -287,76 +328,66 @@ function displayUserInfo(whois, userId) {
     
     let html = 
         '<div class="row g-0">' +
-            '<div class="col-md-4 bg-dark text-white p-4">' +
+            '<div class="col-md-4 p-4" style="background: var(--primary-gradient); color: white;">' +
                 '<div class="text-center mb-4">' +
-                    '<div class="bg-primary rounded-circle border border-3 border-light d-flex align-items-center justify-content-center mx-auto" style="width: 150px; height: 150px; font-size: 3rem;">' +
+                    '<div class="bg-white bg-opacity-20 rounded-circle border border-3 border-light d-flex align-items-center justify-content-center mx-auto" style="width: 120px; height: 120px; font-size: 2.5rem;">' +
                         '<i class="bi bi-person-fill"></i>' +
                     '</div>' +
                 '</div>' +
                 '<div class="text-center">' +
                     '<h4 class="mb-1">' + (whois.displayname || userId.split(':')[0].substring(1)) + '</h4>' +
-                    '<p class="text-muted mb-3">' + userId + '</p>' +
+                    '<p class="opacity-75 mb-3">' + userId + '</p>' +
                     '<div class="d-flex justify-content-center gap-2 mb-3">' +
-                        (whois.admin ? '<span class="badge bg-danger">Admin</span>' : '<span class="badge bg-secondary">User</span>') +
-                        (whois.deactivated ? '<span class="badge bg-warning">Deactivated</span>' : '<span class="badge bg-success">Active</span>') +
+                        (whois.admin ? '<span class="badge bg-danger">{{ t("users.admin") }}</span>' : '<span class="badge bg-light text-dark">{{ t("forms.user") }}</span>') +
+                        (whois.deactivated ? '<span class="badge bg-warning">{{ t("users.deactivated") }}</span>' : '<span class="badge bg-success">{{ t("users.active") }}</span>') +
                     '</div>' +
                 '</div>' +
                 
-                // Action buttons in modal
                 '<div class="d-grid gap-2 mb-4">' +
-                    '<a href="/users/' + encodeURIComponent(userId) + '/edit" class="btn btn-outline-light btn-sm">' +
-                        '<i class="bi bi-pencil me-2"></i>Edit User' +
+                    '<a href="/users/' + encodeURIComponent(userId) + '/edit" class="btn btn-outline-light btn-sm hover-lift">' +
+                        '<i class="bi bi-pencil me-2"></i>{{ t("users.edit_user") }}' +
                     '</a>' +
-                    '<button class="btn btn-outline-light btn-sm" onclick="showUserMedia(\'' + userId + '\')">' +
-                        '<i class="bi bi-file-earmark-image me-2"></i>View Media' +
-                    '</button>' +
-                    '<button class="btn btn-outline-light btn-sm" onclick="resetPassword(\'' + userId + '\')">' +
-                        '<i class="bi bi-key me-2"></i>Reset Password' +
-                    '</button>' +
-                    '<button class="btn btn-outline-light btn-sm" onclick="configureRateLimit(\'' + userId + '\')">' +
-                        '<i class="bi bi-speedometer2 me-2"></i>Rate Limits' +
-                    '</button>' +
-                    '<button class="btn btn-outline-light btn-sm" onclick="loginAsUser(\'' + userId + '\')">' +
-                        '<i class="bi bi-person-check me-2"></i>Login As User' +
+                    '<button class="btn btn-outline-light btn-sm hover-lift" onclick="showUserMedia(\'' + userId + '\')">' +
+                        '<i class="bi bi-file-earmark-image me-2"></i>{{ t("users.view_media") }}' +
                     '</button>' +
                 '</div>' +
                 
-                '<hr class="border-light">' +
+                '<hr class="border-light opacity-25">' +
                 '<div class="mb-3">' +
-                    '<h6><i class="bi bi-calendar-plus me-2"></i>Created</h6>' +
-                    '<p class="mb-0">' + (whois.creation_ts ? new Date(whois.creation_ts).toLocaleString() : 'Unknown') + '</p>' +
+                    '<h6><i class="bi bi-calendar-plus me-2"></i>{{ t("users.created") }}</h6>' +
+                    '<p class="mb-0 opacity-75">' + (whois.creation_ts ? new Date(whois.creation_ts).toLocaleString() : '{{ t("messages.unknown") }}') + '</p>' +
                 '</div>' +
                 '<div class="mb-3">' +
-                    '<h6><i class="bi bi-clock me-2"></i>Last Seen</h6>' +
-                    '<p class="mb-0">' + (whois.last_seen_ts ? new Date(whois.last_seen_ts).toLocaleString() : 'Unknown') + '</p>' +
+                    '<h6><i class="bi bi-clock me-2"></i>{{ t("users.last_seen") }}</h6>' +
+                    '<p class="mb-0 opacity-75">' + (whois.last_seen_ts ? new Date(whois.last_seen_ts).toLocaleString() : '{{ t("messages.unknown") }}') + '</p>' +
                 '</div>' +
             '</div>' +
             
             '<div class="col-md-8 p-4">' +
-                '<div class="card border-0 shadow-sm">' +
-                    '<div class="card-header bg-light">' +
-                        '<h5 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>Account Information</h5>' +
+                '<div class="card border-0 glass-effect">' +
+                    '<div class="card-header">' +
+                        '<h5 class="mb-0 text-gradient"><i class="bi bi-person-lines-fill me-2"></i>{{ t("users.account_information") }}</h5>' +
                     '</div>' +
                     '<div class="card-body">' +
                         '<div class="row">' +
                             '<div class="col-md-6">' +
-                                '<strong>User ID:</strong><br>' +
+                                '<strong>{{ t("users.user_id") }}:</strong><br>' +
                                 '<code class="text-primary">' + userId + '</code>' +
                             '</div>' +
                             '<div class="col-md-6">' +
-                                '<strong>Display Name:</strong><br>' +
-                                '<span>' + (whois.displayname || 'Not specified') + '</span>' +
+                                '<strong>{{ t("users.display_name") }}:</strong><br>' +
+                                '<span>' + (whois.displayname || '{{ t("users.not_specified") }}') + '</span>' +
                             '</div>' +
                         '</div>' +
                         '<hr>' +
                         '<div class="row">' +
                             '<div class="col-md-6">' +
-                                '<strong>User Type:</strong><br>' +
-                                '<span>' + (whois.admin ? 'Administrator' : 'Regular User') + '</span>' +
+                                '<strong>{{ t("users.user_type") }}:</strong><br>' +
+                                '<span>' + (whois.admin ? '{{ t("users.administrator") }}' : '{{ t("users.regular_user") }}') + '</span>' +
                             '</div>' +
                             '<div class="col-md-6">' +
-                                '<strong>Account Status:</strong><br>' +
-                                '<span>' + (whois.deactivated ? 'Deactivated' : 'Active') + '</span>' +
+                                '<strong>{{ t("users.account_status") }}:</strong><br>' +
+                                '<span>' + (whois.deactivated ? '{{ t("users.deactivated") }}' : '{{ t("users.active") }}') + '</span>' +
                             '</div>' +
                         '</div>' +
                     '</div>' +
@@ -367,88 +398,15 @@ function displayUserInfo(whois, userId) {
     content.innerHTML = html;
 }
 
-// Simple action functions
-function resetPassword(userId) {
-    const newPassword = prompt('Enter new password for user ' + userId + ':');
-    if (newPassword) {
-        fetch('/api/users/' + encodeURIComponent(userId) + '/reset_password', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: 'new_password=' + encodeURIComponent(newPassword)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Password reset successfully');
-            } else {
-                alert('Error: ' + (data.error || 'Unknown error'));
-            }
-        })
-        .catch(() => {
-            alert('Network error resetting password');
-        });
-    }
-}
-
-function configureRateLimit(userId) {
-    const mps = prompt('Messages per second (leave empty for default):');
-    const burst = prompt('Burst count (leave empty for default):');
-    
-    const params = new URLSearchParams();
-    if (mps) params.append('messages_per_second', mps);
-    if (burst) params.append('burst_count', burst);
-    
-    fetch('/api/users/' + encodeURIComponent(userId) + '/rate_limit', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: params.toString()
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Rate limits configured successfully');
-        } else {
-            alert('Error: ' + (data.error || 'Unknown error'));
-        }
-    })
-    .catch(() => {
-        alert('Network error configuring rate limits');
-    });
-}
-
-function loginAsUser(userId) {
-    if (confirm('Generate access token for user ' + userId + '?')) {
-        fetch('/api/users/' + encodeURIComponent(userId) + '/login_as', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Access token generated successfully!\nToken: ' + (data.token_data?.access_token || 'Check server logs'));
-            } else {
-                alert('Error: ' + (data.error || 'Unknown error'));
-            }
-        })
-        .catch(() => {
-            alert('Network error generating token');
-        });
-    }
-}
-
 function showUserMedia(userId) {
     const content = document.getElementById('whoisContent');
     
-    // Show loading
     content.innerHTML = 
         '<div class="text-center py-5">' +
-            '<div class="spinner-border text-primary" role="status">' +
-                '<span class="visually-hidden">Loading...</span>' +
-            '</div>' +
-            '<div class="mt-3">Loading user media...</div>' +
+            '<div class="loading"></div>' +
+            '<div class="mt-3">{{ t("messages.loading_media") }}...</div>' +
         '</div>';
     
-    // Fetch user media
     fetch('/api/users/' + encodeURIComponent(userId) + '/media')
         .then(response => response.json())
         .then(data => {
@@ -458,7 +416,7 @@ function showUserMedia(userId) {
                 content.innerHTML = 
                     '<div class="alert alert-danger m-4">' +
                         '<i class="bi bi-exclamation-triangle me-2"></i>' +
-                        'Error loading media: ' + (data.error || 'Unknown error') +
+                        '{{ t("messages.error_loading_media") }}: ' + (data.error || '{{ t("messages.unknown_error") }}') +
                     '</div>';
             }
         })
@@ -466,7 +424,7 @@ function showUserMedia(userId) {
             content.innerHTML = 
                 '<div class="alert alert-danger m-4">' +
                     '<i class="bi bi-exclamation-triangle me-2"></i>' +
-                    'Network error: ' + error.message +
+                    '{{ t("messages.network_error") }}: ' + error.message +
                 '</div>';
         });
 }
@@ -478,55 +436,24 @@ function displayUserMedia(mediaData, userId) {
     let html = 
         '<div class="p-4">' +
             '<div class="d-flex justify-content-between align-items-center mb-4">' +
-                '<h4><i class="bi bi-file-earmark-image me-2"></i>Media Files - ' + userId + '</h4>' +
-                '<button class="btn btn-outline-secondary btn-sm" onclick="showUserWhois(\'' + userId + '\')">' +
-                    '<i class="bi bi-arrow-left me-2"></i>Back to Profile' +
+                '<h4 class="text-gradient"><i class="bi bi-file-earmark-image me-2"></i>{{ t("users.media_files") }} - ' + userId + '</h4>' +
+                '<button class="btn btn-outline-primary btn-sm hover-lift" onclick="showUserWhois(\'' + userId + '\')">' +
+                    '<i class="bi bi-arrow-left me-2"></i>{{ t("forms.back_to_profile") }}' +
                 '</button>' +
             '</div>';
     
     if (media.length === 0) {
         html += 
             '<div class="text-center py-5">' +
-                '<i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>' +
-                '<h5 class="mt-3 text-muted">No media files found</h5>' +
-                '<p class="text-muted">This user has no uploaded media files.</p>' +
+                '<i class="bi bi-inbox text-muted mb-3" style="font-size: 3rem;"></i>' +
+                '<h5 class="text-muted">{{ t("users.no_media_files") }}</h5>' +
+                '<p class="text-muted">{{ t("users.no_media_description") }}</p>' +
             '</div>';
     } else {
         html += 
-            '<div class="row">' +
-                '<div class="col-12">' +
-                    '<div class="table-responsive">' +
-                        '<table class="table table-hover">' +
-                            '<thead>' +
-                                '<tr>' +
-                                    '<th>File Name</th>' +
-                                    '<th>Type</th>' +
-                                    '<th>Size</th>' +
-                                    '<th>Created</th>' +
-                                '</tr>' +
-                            '</thead>' +
-                            '<tbody>';
-        
-        media.forEach(function(file) {
-            const fileName = file.upload_name || file.media_id || 'Unknown';
-            const fileType = file.media_type || 'Unknown';
-            const fileSize = formatFileSize(file.media_length || 0);
-            const created = file.created_ts ? new Date(file.created_ts).toLocaleString() : 'Unknown';
-            
-            html += 
-                '<tr>' +
-                    '<td><code>' + fileName + '</code></td>' +
-                    '<td><span class="badge bg-secondary">' + fileType + '</span></td>' +
-                    '<td>' + fileSize + '</td>' +
-                    '<td>' + created + '</td>' +
-                '</tr>';
-        });
-        
-        html += 
-                            '</tbody>' +
-                        '</table>' +
-                    '</div>' +
-                '</div>' +
+            '<div class="alert alert-info">' +
+                '<i class="bi bi-info-circle me-2"></i>' +
+                '{{ t("users.media_count") }}: ' + media.length +
             '</div>';
     }
     
@@ -534,22 +461,11 @@ function displayUserMedia(mediaData, userId) {
     content.innerHTML = html;
 }
 
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-}
-
-// Refresh functionality
+// Add refresh functionality
 document.addEventListener('DOMContentLoaded', function() {
-    const refreshBtn = document.querySelector('[data-refresh]');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', function() {
-            window.location.reload();
-        });
-    }
+    document.querySelector('[data-refresh]')?.addEventListener('click', function() {
+        window.location.reload();
+    });
 });
 </script>
 {% endblock %} 

@@ -11,9 +11,17 @@ def datetime_format(value):
         return t("messages.not_specified")
     
     if isinstance(value, (int, float)):
-        # Unix timestamp in milliseconds
         import datetime
-        dt = datetime.datetime.fromtimestamp(value / 1000)
+        
+        # Автоматическое определение формата timestamp
+        # Если значение больше 1e10, то это миллисекунды, иначе секунды
+        if value > 1e10:
+            # Timestamp в миллисекундах
+            dt = datetime.datetime.fromtimestamp(value / 1000)
+        else:
+            # Timestamp в секундах
+            dt = datetime.datetime.fromtimestamp(value)
+            
         return dt.strftime('%d.%m.%Y %H:%M')
     
     return str(value)

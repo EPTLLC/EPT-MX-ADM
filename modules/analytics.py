@@ -26,7 +26,8 @@ class AnalyticsManager:
                 'local_rooms': 0,
                 'remote_rooms': 0,
                 'server_version': 'Unknown',
-                'domain': 'Unknown'
+                'domain': 'Unknown',
+                'python_version': 'Unknown'
             }
             
             # Get users statistics
@@ -82,6 +83,15 @@ class AnalyticsManager:
                     stats['domain'] = parsed.netloc
                 except:
                     pass
+            
+            # Get Python version
+            try:
+                import sys
+                python_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+                stats['python_version'] = python_version
+            except Exception as e:
+                logger.error(f"Error getting Python version: {str(e)}")
+                stats['python_version'] = 'Unknown'
             
             return stats
             
