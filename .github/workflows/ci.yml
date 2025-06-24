@@ -32,21 +32,34 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install pytest
+        python -m pip install pytest pytest-cov flask flake8
     
-    - name: Run basic test
+    - name: Lint with flake8
       run: |
-        python -c "print('Python works!')"
-        python -c "import pytest; print('pytest works!')"
-        python -m pytest simple_test.py -v --no-header --tb=short
+        flake8 . --count --max-line-length=127 --statistics --exclude=static/vendor
+      continue-on-error: true
+    
+    - name: Run tests
+      run: |
+        python -m pytest simple_test.py tests/test_minimal.py -v --cov=. --cov-report=term-missing
     
 
 
   security:
     runs-on: ubuntu-latest
     steps:
-    - name: Security check
-      run: echo "Security scan placeholder - passed"
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    
+    - name: Install bandit
+      run: pip install bandit
+    
+    - name: Run security scan
+      run: bandit -r . -x tests/ || true
 
   build:
     runs-on: ubuntu-latest
@@ -54,5 +67,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     
     steps:
+    - uses: actions/checkout@v4
+    
     - name: Build check
       run: echo "Build completed successfully" 
