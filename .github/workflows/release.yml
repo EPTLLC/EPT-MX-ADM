@@ -49,4 +49,4 @@ jobs:
             ```
           files: dist/*
           draft: false
-          prerelease: false 
+          prerelease: false  # и его проверь
