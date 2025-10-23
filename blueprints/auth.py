@@ -1,4 +1,11 @@
 """
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Authentication Blueprint
+Telegram: https://t.me/EasyProTech
+
 Authentication Blueprint for EPT-MX-ADM
 """
 
@@ -30,8 +37,9 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        matrix_server = request.form.get('matrix_server')
         
-        if auth_manager.login_user(username, password):
+        if auth_manager.login_user(username, password, matrix_server):
             next_page = request.args.get('next')
             return redirect(next_page if next_page else url_for('dashboard.dashboard'))
     

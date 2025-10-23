@@ -1,435 +1,762 @@
-# 🚀 EPT-MX-ADM v0.0.1-beta
+# EPT-MX-ADM v1.0.0
+
+[![PyPI version](https://badge.fury.io/py/ept-mx-adm.svg)](https://badge.fury.io/py/ept-mx-adm)
+[![Python](https://img.shields.io/pypi/pyversions/ept-mx-adm.svg)](https://pypi.org/project/ept-mx-adm/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Downloads](https://pepy.tech/badge/ept-mx-adm)](https://pepy.tech/project/ept-mx-adm)
 
 ```
   _____ ____ _____     __  ____   __      _    ____  __  __ 
- | ____|  _ \_   _|   |  \/  \ \/  /     / \  |  _ \|  \/  |
- |  _| | |_) || |_____|  |\/| |\  /_____/ _ \ | | | | |\/| |
- | |___|  __/ | |_____|  |  | |/  \____/ ___ \| |_| | |  | |
+ | ____|  _ \_   _|   |  \/  \ \ / /     / \  |  _ \|  \/  |
+ |  _| | |_) || |_____|  |\/  |\ \  /____/ _ \ | | | | |\/| |
+ | |___|  __/ | |_____|  |  | |/ /  \___/ ___ \| |_| | |  | |
  |_____|_|    |_|     |__|  |_/_/\_\  /_/   \_\____/|_|  |_|
 ```
 
-Modern administration panel for Matrix Synapse server
+**Web-Based Administration Panel for Matrix Synapse Server**
 
-**Created and maintained by [EasyProTech LLC](https://www.easypro.tech) • Developed by Brabus**
+Universal admin tool that works with ANY Matrix server - local, remote, cloud, or self-hosted. Just admin credentials needed.
 
-![CI/CD](https://github.com/EPTLLC/EPT-MX-ADM/workflows/CI%2FCD%20Pipeline/badge.svg)
-![Python](https://img.shields.io/badge/Python-3.10+-green?style=flat-square)
-![Flask](https://img.shields.io/badge/Flask-2.3+-red?style=flat-square)
-![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen?style=flat-square)
-![Multilingual](https://img.shields.io/badge/i18n-11%20Languages-orange?style=flat-square)
-![Beta](https://img.shields.io/badge/Status-BETA-yellow?style=flat-square)
+---
 
-EPT-MX-ADM is a modern, user-friendly admin panel for Matrix Synapse, replacing outdated tools with a modular, multilingual interface and powerful features.
+## Table of Contents
 
-## 📑 Table of Contents
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Running the Application](#running-the-application)
+- [Usage](#usage)
+- [Localization](#localization)
+- [Production Deployment](#production-deployment)
+- [Troubleshooting](#troubleshooting)
+- [Security](#security)
+- [Contributing](#contributing)
+- [License](#license)
+- [Support](#support)
 
-- [🎯 See It In Action](#-see-it-in-action-30-seconds)
-- [⚠️ Beta Warning](#️-beta-version-warning)
-- [🧪 Demo](#-demo--try-online)
-- [💡 Why I Created This](#-why-i-created-ept-mx-adm)
-- [🔥 Why EPT-MX-ADM?](#-why-ept-mx-adm)
-- [✨ Features](#-features)
-- [📸 Screenshots](#-screenshots)
-- [🌍 Multilingual Support](#-multilingual-support)
-- [🔧 Architecture](#-architecture-overview)
-- [💻 System Requirements](#-system-requirements)
-- [⚡ Performance](#-performance)
-- [🛠️ Built With](#️-built-with)
-- [📊 Comparison](#-ept-mx-adm-vs-others)
-- [🚀 Quick Start](#-quick-start)
-- [⚡ Troubleshooting](#-common-issues--solutions)
-- [🗺️ Roadmap](#️-roadmap)
-- [📝 License](#-license)
-- [🤝 Contributing](#-contributing)
-- [📞 Support](#-support)
+---
 
-## 🎯 See It In Action (30 seconds)
+## Features
+
+### Universal Compatibility
+- Works with ANY Matrix server (local, remote, cloud, self-hosted)
+- Supports self-signed SSL certificates
+- No complex configuration needed
+- Multi-server support in one installation
+
+### Dashboard
+- Real-time server statistics
+- User analytics (active, deactivated, total)
+- Room statistics and analytics
+- Media storage monitoring
+- API health status
+- Synapse version information
+- Python version display
+
+### User Management
+- View all users with pagination
+- Create new users
+- Edit user profiles and settings
+- Deactivate/reactivate users
+- Reset user passwords
+- View user devices and sessions
+- Media storage per user
+- Filter by guests and deactivated users
+- CSV export/import
+- Advanced search functionality
+
+### Room Management
+- List all rooms with detailed information
+- View room details and statistics
+- Edit room settings
+- Delete rooms
+- Unblock rooms
+- Assign room administrators
+- Column visibility toggles
+- Advanced filtering and search
+- CSV export
+- Pagination with customizable rows per page
+
+### Space Management
+- List all Matrix spaces
+- View space hierarchies
+- Manage space settings
+- Consistent pagination
+- Modern card-based UI
+
+### Media Management
+- Overall media statistics dashboard
+- Users with media list
+- Detailed user media files view
+- File type filtering (Images, Videos, Audio, Documents, Other)
+- Quarantine system for suspicious files
+- Media file deletion
+- CSV export
+- Human-readable file sizes
+- Status filtering (Normal, Quarantined)
+
+### Authentication & Security
+- Simplified login form
+- Server auto-detection
+- Username auto-formatting
+- Real Matrix admin rights verification
+- Session management
+- SSL certificate support
+- Secure API integration
+
+### Localization
+- Multi-language support: English, Russian, German, French, Italian, Spanish, Turkish, Arabic, Hebrew, Japanese, Chinese
+- Easy language switching
+- Full interface translation
+- RTL support ready
+
+### Modern UI/UX
+- Responsive design for all devices
+- Dark/Light theme toggle
+- Bootstrap 5 framework
+- Bootstrap Icons
+- Chart.js for analytics
+- Smooth animations
+- Modal dialogs
+- Toast notifications
+
+---
+
+## Requirements
+
+### System Requirements
+- **Python**: 3.8 or higher
+- **pip**: Latest version recommended
+- **Operating System**: Linux, macOS (Windows with WSL or manual setup)
+
+### Matrix Server Requirements
+- **Matrix Synapse**: Any version with Admin API enabled
+- **Admin Account**: User with admin privileges on the Matrix server
+- **Network Access**: HTTP/HTTPS access to Matrix server
+
+### Python Dependencies
+All dependencies are listed in `requirements.txt`:
+- Flask >= 2.3.0
+- requests >= 2.31.0
+- Jinja2 >= 3.1.0
+- MarkupSafe >= 2.1.0
+- werkzeug >= 2.3.0
+
+---
+
+## Installation
+
+### Quick Start (PyPI - Recommended)
 
 ```bash
-# Clone, install, run - that's it!
+# Install from PyPI
+pip install ept-mx-adm
+
+# Download static assets
+cd $(pip show ept-mx-adm | grep Location | cut -d' ' -f2)/ept-mx-adm
+chmod +x install_assets.sh
+./install_assets.sh
+
+# Run the application
+python -m ept-mx-adm
+# or
+ept-mx-adm
+```
+
+### Installation from Source
+
+#### Option 1: Simple Installation
+```bash
+# Clone the repository
 git clone https://github.com/EPTLLC/EPT-MX-ADM.git
 cd EPT-MX-ADM
-pip3 install -r requirements.txt
-python3 app.py
-# Open http://localhost:5000
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Download static assets
+chmod +x install_assets.sh
+./install_assets.sh
+
+# Run the application
+python app.py
 ```
 
-## ⚠️ BETA VERSION WARNING
+#### Option 2: Using Helper Script
+```bash
+# Clone the repository
+git clone https://github.com/EPTLLC/EPT-MX-ADM.git
+cd EPT-MX-ADM
 
-**🚧 This is a BETA version (v0.0.1-beta) - Work in Progress!**
+# Make script executable
+chmod +x run.sh
 
-* 🔨 Many features are still under development
-* 🐛 Bugs and issues are expected
-* 📝 Documentation may be incomplete
-* 🔄 Breaking changes may occur
-* ⚡ Use at your own risk in production
+# Run (auto-installs dependencies and starts app)
+./run.sh
+```
 
-This project is being developed in my spare time. There is **no support**, **no explanations**, and **no guarantees**. Use it if you like it — when I have time and inspiration, I'll improve it.
+#### Option 3: With Virtual Environment
+```bash
+# Clone the repository
+git clone https://github.com/EPTLLC/EPT-MX-ADM.git
+cd EPT-MX-ADM
 
-## 🧪 Demo / Try Online
+# Create virtual environment
+python3 -m venv venv
 
-Try EPT-MX-ADM live without installation:
+# Activate virtual environment
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-* **Demo URL:** [https://admin.matrix.easypro.tech/](https://admin.matrix.easypro.tech/)
-* **Username:** `qwe`
-* **Password:** `qwe`
+# Upgrade pip
+pip install --upgrade pip
 
-> ⚠️ This is a public demo instance. Changes are temporary and reset periodically. Do not upload sensitive data.
+# Install dependencies
+pip install -r requirements.txt
 
-## 💡 Why I Created EPT-MX-ADM
+# Download static assets
+chmod +x install_assets.sh
+./install_assets.sh
 
-> *From the author – Brabus*
+# Run the application
+python app.py
+```
 
-Matrix is a powerful platform with terrible admin tools:
+#### Option 4: With pipx (Isolated)
+```bash
+# Install pipx if not already installed
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
 
-* Outdated Synapse Admin UI
-* CORS errors everywhere
-* Hours lost on Nginx config
-* Vague, incomplete documentation
+# Clone and setup
+git clone https://github.com/EPTLLC/EPT-MX-ADM.git
+cd EPT-MX-ADM
 
-Admins waste time fighting tools. So I built one that works:
+# Install dependencies (pipx manages isolation)
+pip install -r requirements.txt
 
-* Modular
-* Multilingual (11 languages)
-* Simple, modern UI
-* Real dashboards and management tools
+# Download static assets
+chmod +x install_assets.sh
+./install_assets.sh
 
-Created by [EasyProTech LLC](https://www.easypro.tech) — we build tools that solve real problems.
+# Run
+python app.py
+```
 
-## 🔥 Why EPT-MX-ADM?
+#### Option 5: Windows (Manual Setup)
+```cmd
+# Clone the repository
+git clone https://github.com/EPTLLC/EPT-MX-ADM.git
+cd EPT-MX-ADM
 
-### Zero CORS Issues
-Unlike Synapse Admin, works out of the box. No proxy configs, no CORS headers, no pain.
+# Create virtual environment
+python -m venv venv
 
-### Real-time Updates
-See changes instantly. No page refreshes needed.
+# Activate virtual environment
+venv\Scripts\activate
 
-### Batch Operations
-Select multiple users/rooms and manage them in one click.
+# Install dependencies
+pip install -r requirements.txt
 
-### Dark Mode
-Built-in theme switcher. Your eyes will thank you.
+# Download static assets manually or use WSL:
+# - Download Bootstrap 5, Bootstrap Icons, Chart.js
+# - Place in static/vendor/ folders
+# - See install_assets.sh for URLs
 
-### Mobile Ready
-Manage your server from your phone. Yes, really.
+# Run the application
+python app.py
+```
 
-## ✨ Features
+**Note for Windows users:**
+- Shell scripts (.sh files) require WSL (Windows Subsystem for Linux) or Git Bash
+- Alternatively, manually download static assets from CDN links in `install_assets.sh`
+- Python application itself runs natively on Windows
 
-### 🎯 Current Functionality (Beta)
+---
 
-* 👥 **User Management** *(fully implemented)*
-  - Create, edit, deactivate users
-  - Search and filter capabilities
-  - CSV import/export
-  - Admin rights management
-* 🏠 **Room Management** *(implemented)*
-  - Room listing with advanced filters
-  - Room deletion and blocking
-  - Member management
-  - Search by name/ID
-* 📁 **Media Management** *(implemented)*
-  - User media browser
-  - Quarantine/unquarantine files
-  - Storage analytics
-* 📊 **Dashboard** *(implemented)*
-  - Real-time server statistics
-  - User growth charts
-  - System health monitoring
-* 🔐 **Secure Authorization** *(working)*
-  - Matrix admin account authentication
-  - Session management
-* 🌍 **Multilingual** *(complete)*
-  - 11 languages supported
-  - Instant language switching
-* 📱 **Responsive Design** *(implemented)*
-  - Mobile-friendly interface
-  - Touch-optimized controls
+## Configuration
 
-### 🚧 Planned Features
+### config.json
 
-* 🌐 Space Management (hierarchy view)
-* 📈 Advanced Analytics
-* 🌐 Federation Management
-* 📋 Logs & Audit
-* ⚙️ UI-based Configuration
-* 🚨 Alerts & Monitoring
+The main configuration file is `config.json` in the project root.
 
-## 📸 Screenshots
+**Default Configuration:**
+```json
+{
+  "matrix_server": "https://matrix.example.com",
+  "app": {
+    "host": "127.0.0.1",
+    "port": 5000,
+    "debug": true
+  },
+  "session": {
+    "secret_key": "your-secret-key-here-change-this"
+  }
+}
+```
 
-### 🔐 Login Page
+**Configuration Options:**
 
-![Login Page](screen/login_page.jpg)
-*Clean login interface • Language switcher • Dark/Light theme toggle*
+| Parameter | Description | Default | Required |
+|-----------|-------------|---------|----------|
+| `matrix_server` | Your Matrix Synapse server URL (can be changed at login) | `https://matrix.example.com` | No |
+| `app.host` | Application host | `127.0.0.1` | Yes |
+| `app.port` | Application port | `5000` | Yes |
+| `app.debug` | Debug mode (disable in production) | `true` | Yes |
+| `session.secret_key` | Flask session secret key (change in production) | Generated | Yes |
 
-### 📊 Dashboard
+### Important Notes
 
-![Dashboard](screen/dashboard.jpg)
-*Real-time server stats • User growth chart • Quick actions*
+1. **Matrix Server**: The `matrix_server` in config.json is optional - you can specify any server at login
+2. **Secret Key**: Change `session.secret_key` in production to a random string
+3. **Debug Mode**: Set `app.debug` to `false` in production
+4. **SSL Certificates**: Self-signed certificates are automatically supported
 
-### 🌍 Language Selection
+---
 
-![Language Selection](screen/dashboard_lang.jpg)
-*11 languages • Instant switching • Flag icons for easy recognition*
+## Running the Application
 
-### 👥 User Management
-
-![User Management](screen/user_management.jpg)
-*Search & filter • Batch operations • User profile cards*
-
-### 👤 User Profile
-
-![User Profile](screen/user_profile.jpg)
-*Detailed user info • Account settings • Creation date*
-
-### 🏠 Room Management
-
-![Room Management](screen/room_management.jpg)
-*Room list • Search by name/ID • Quick moderation tools*
-
-### 📁 Media Management
-
-![Users Media](screen/users_media.jpg)
-*Media browser • Quarantine tools • Storage analytics*
-
-## 🌍 Multilingual Support
-
-Available Languages:
-EN, RU, DE, FR, IT, ES, TR, ZH, JA, AR, HE
-
-* Language switcher on login
-* Flags for visual aid
-* Localization includes interface, errors, tooltips, validation
-
-## 🔧 Architecture Overview
-
-Folder structure: `ept-mx-adm/`
-
-* `app.py` – main Flask app
-* `gunicorn.conf.py`, `requirements.txt`, `config/settings.py`
-* `blueprints/` – routes (auth, users, rooms, spaces, media, api)
-* `modules/` – core logic (user management, room management, etc.)
-* `utils/` – helpers, logging, Matrix API client, i18n
-* `locales/` – translations (11 JSON files)
-* `static/`, `templates/`, `logs/`, `screen/`
-
-## 💻 System Requirements
-
-* **RAM:** 512MB minimum (1GB recommended)
-* **Disk:** 100MB for app + logs
-* **CPU:** Any modern processor
-* **OS:** Linux, macOS, Windows (with WSL)
-* **Network:** Access to Matrix homeserver
-* **Python:** 3.10+ required
-
-## ⚡ Performance
-
-* Handles 10,000+ users without breaking a sweat
-* Lazy loading for large datasets
-* Caching for repeated API calls
-* Average response time: <100ms
-* Efficient memory usage
-
-## 🛠️ Built With
-
-* **Flask** - Lightweight web framework
-* **Bootstrap 5** - Modern, responsive UI
-* **Chart.js** - Beautiful analytics charts
-* **Vanilla JavaScript** - No jQuery dependency
-* **Matrix Admin API** - Direct Synapse integration
-* **Gunicorn** - Production WSGI server
-
-## 📊 EPT-MX-ADM vs Others
-
-| Feature | EPT-MX-ADM | Synapse Admin | Element Web |
-|---------|------------|---------------|-------------|
-| No CORS issues | ✅ | ❌ | ❌ |
-| 11 Languages | ✅ | ❌ | ✅ |
-| Dark Mode | ✅ | ❌ | ✅ |
-| Mobile UI | ✅ | ❌ | ✅ |
-| User Management | ✅ | ✅ | ❌ |
-| Room Management | ✅ | ✅ | ❌ |
-| Media Management | ✅ | ❌ | ❌ |
-| Real Analytics | ✅ | ❌ | ❌ |
-| Easy Setup | ✅ | ❌ | ❌ |
-
-## 🧪 Testing & Development
-
-EPT-MX-ADM includes comprehensive testing infrastructure:
+### Development Mode
 
 ```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
+# Activate virtual environment if using one
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Run tests
-make test                    # All tests
-make test-unit              # Unit tests only
-make test-coverage          # With coverage report
-
-# Code quality
-make lint                   # Linting
-make format                 # Code formatting
-make ci                     # All CI checks
+# Run the application
+python app.py
 ```
 
-**Testing Stack:**
-- pytest + coverage reporting
-- GitHub Actions CI/CD
-- Code quality tools (flake8, black, mypy)
-- Security scanning (bandit)
+The application will start on `http://127.0.0.1:5000` (or the host/port specified in config.json).
 
-See [TESTING.md](TESTING.md) for detailed testing guide.
-
-## 🚀 Quick Start
-
-### Deployment Recommendations (Linux):
+### Production Mode (Gunicorn)
 
 ```bash
-/opt/ept-mx-adm/
-/var/www/matrix-admin/
-/home/matrix/admin/
+# Activate virtual environment if using one
+source venv/bin/activate
+
+# Run with Gunicorn
+gunicorn -c gunicorn.conf.py app:app
 ```
 
-Permissions:
+### Systemd Service (Linux)
 
-* Separate user (e.g., `matrix-admin`)
-* Folders 755, files 644
-* Don't run as root
+Create `/etc/systemd/system/ept-mx-adm.service`:
 
-### Install
+```ini
+[Unit]
+Description=EPT-MX-ADM Matrix Admin Panel
+After=network.target
 
+[Service]
+Type=notify
+User=your-user
+Group=your-group
+WorkingDirectory=/path/to/EPT-MX-ADM
+Environment="PATH=/path/to/EPT-MX-ADM/venv/bin"
+ExecStart=/path/to/EPT-MX-ADM/venv/bin/gunicorn -c gunicorn.conf.py app:app
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start:
 ```bash
-sudo useradd -r -s /bin/bash -d /opt/ept-mx-adm matrix-admin
-sudo mkdir -p /opt/ept-mx-adm
-sudo chown matrix-admin:matrix-admin /opt/ept-mx-adm
-sudo -u matrix-admin bash
-cd /opt/ept-mx-adm
-git clone https://github.com/EPTLLC/EPT-MX-ADM.git .
+sudo systemctl daemon-reload
+sudo systemctl enable ept-mx-adm
+sudo systemctl start ept-mx-adm
+sudo systemctl status ept-mx-adm
 ```
 
-### Requirements
+---
 
-* Python 3.10+
-* Matrix Synapse with Admin API enabled
-* Admin Matrix account
+## Usage
 
-### One-Line Setup
+### First Login
 
-```bash
-pip3 install -r requirements.txt && \
-mkdir -p static/vendor/{bootstrap/{css,js},bootstrap-icons/fonts,chartjs} && \
-curl -o static/vendor/bootstrap/css/bootstrap.min.css https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css && \
-curl -o static/vendor/bootstrap/js/bootstrap.bundle.min.js https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js && \
-curl -o static/vendor/bootstrap-icons/bootstrap-icons.css https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css && \
-curl -o static/vendor/bootstrap-icons/fonts/bootstrap-icons.woff https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/fonts/bootstrap-icons.woff && \
-curl -o static/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2 https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/fonts/bootstrap-icons.woff2 && \
-curl -o static/vendor/chartjs/chart.min.js https://cdn.jsdelivr.net/npm/chart.js && \
-sed -i 's|https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/fonts/|../bootstrap-icons/fonts/|g' static/vendor/bootstrap-icons/bootstrap-icons.css && \
-echo "✅ EPT-MX-ADM ready to run!"
+1. Open your browser and navigate to `http://localhost:5000` (or your configured host:port)
+
+2. **Login Form:**
+   - **Matrix Server**: Enter your server domain (e.g., `matrix.example.com` or `localhost`)
+     - No need for `https://` - it's added automatically
+     - Works with local servers, remote servers, and self-signed certificates
+   
+   - **Username**: Enter your admin username (e.g., `admin`)
+     - No need for `@` or domain - it's formatted automatically
+   
+   - **Password**: Enter your Matrix admin password
+
+3. Click "Login"
+
+The application will:
+- Automatically format the server URL (add `https://` if needed)
+- Automatically format the username into Matrix ID (add `@` and domain)
+- Verify admin privileges via Matrix API
+- Create a session for your admin user
+
+### Managing Users
+
+**View Users:**
+- Navigate to "Users" tab
+- See all users with pagination
+- Filter by guests and deactivated users
+- View media storage per user
+
+**Create User:**
+- Click "Create User" button
+- Fill in username, password, and optional display name
+- Choose if user should be admin
+- Click "Create"
+
+**Edit User:**
+- Click on user card dropdown menu
+- Select "Edit"
+- Modify user settings
+- Save changes
+
+**Deactivate User:**
+- Click on user dropdown menu
+- Select "Deactivate"
+- Confirm action
+
+### Managing Rooms
+
+**View Rooms:**
+- Navigate to "Rooms" tab
+- See all rooms with statistics
+- Toggle column visibility
+- Use search to find specific rooms
+
+**View Room Details:**
+- Click "View" button on room card
+- See detailed information in modal
+- View members, settings, and statistics
+
+**Edit Room:**
+- Click dropdown menu on room card
+- Select "Edit"
+- Modify room settings
+- Save changes
+
+**Delete Room:**
+- Click dropdown menu
+- Select "Delete"
+- Confirm action (room will be permanently deleted)
+
+### Managing Media
+
+**View Media Statistics:**
+- Navigate to "Media" tab
+- See overall statistics dashboard
+- View total files, storage, and users with media
+
+**View User Media:**
+- Click on user in media list
+- See all media files for that user
+- Filter by file type (Images, Videos, Audio, Documents, Other)
+- Filter by status (Normal, Quarantined)
+
+**Quarantine Media:**
+- In user media view, click dropdown on file
+- Select "Quarantine"
+- File will be marked as quarantined
+
+**Delete Media:**
+- Click dropdown on file
+- Select "Delete"
+- Confirm action
+
+### Managing Spaces
+
+**View Spaces:**
+- Navigate to "Spaces" tab
+- See all Matrix spaces
+- View space hierarchies
+- Manage space settings
+
+---
+
+## Localization
+
+EPT-MX-ADM supports multiple languages out of the box.
+
+### Available Languages
+- English (en)
+- Russian (ru)
+- German (de)
+- French (fr)
+- Italian (it)
+- Spanish (es)
+- Turkish (tr)
+- Arabic (ar)
+- Hebrew (he)
+- Japanese (ja)
+- Chinese (zh)
+
+### Changing Language
+
+**In Application:**
+1. Click on language selector in top navigation
+2. Choose your preferred language
+3. Interface will update immediately
+4. Language preference is saved in session
+
+**Adding New Language:**
+1. Copy `locales/en/messages.json` to `locales/[language_code]/messages.json`
+2. Translate all strings in the new file
+3. Language will be automatically detected and available
+
+---
+
+## Production Deployment
+
+### Security Checklist
+
+- [ ] Change `session.secret_key` in config.json to a random string
+- [ ] Set `app.debug` to `false` in config.json
+- [ ] Use strong passwords for admin accounts
+- [ ] Enable HTTPS (use nginx or Apache as reverse proxy)
+- [ ] Restrict access to the application (firewall, VPN)
+- [ ] Keep Python and dependencies up to date
+- [ ] Regular backups of config.json
+- [ ] Monitor logs for suspicious activity
+
+### Nginx Configuration Example
+
+```nginx
+server {
+    listen 80;
+    server_name admin.yourdomain.com;
+    
+    # Redirect to HTTPS
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name admin.yourdomain.com;
+    
+    # SSL certificates
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
 ```
 
-> For offline install, manually download and place assets in `static/vendor/`
+### Apache Configuration Example
 
-### Configuration
+```apache
+<VirtualHost *:80>
+    ServerName admin.yourdomain.com
+    Redirect permanent / https://admin.yourdomain.com/
+</VirtualHost>
 
-Edit `config/settings.py`:
-
-```python
-SYNAPSE_URL = "https://your-domain.com"
-DEFAULT_LOCALE = "en"
+<VirtualHost *:443>
+    ServerName admin.yourdomain.com
+    
+    SSLEngine on
+    SSLCertificateFile /path/to/cert.pem
+    SSLCertificateKeyFile /path/to/key.pem
+    
+    ProxyPass / http://127.0.0.1:5000/
+    ProxyPassReverse / http://127.0.0.1:5000/
+    
+    ProxyPreserveHost On
+    RequestHeader set X-Forwarded-Proto "https"
+</VirtualHost>
 ```
 
-### Launch
+---
 
-```bash
-python3 app.py
-# or in background:
-nohup python3 app.py > logs/app.log 2>&1 &
-# or with Gunicorn:
-gunicorn -w 4 -b 0.0.0.0:5000 app:app
-```
+## Troubleshooting
 
-Use a reverse proxy (e.g., Nginx + HTTPS).
+### Common Issues
 
-## ⚡ Common Issues & Solutions
+#### "Connection refused" or "Cannot connect to Matrix server"
+**Solution:**
+- Verify Matrix server URL is correct
+- Check if Matrix server is running
+- Ensure network connectivity
+- For local servers, try `localhost` or `127.0.0.1`
+- Check firewall rules
 
-**Can't login?**
-→ Check you're using full Matrix ID: `@username:domain.com`
+#### "SSL: CERTIFICATE_VERIFY_FAILED" error
+**Solution:**
+- EPT-MX-ADM automatically handles self-signed certificates
+- If error persists, verify server URL starts with `https://`
+- Check if Matrix server certificate is properly configured
 
-**Empty dashboard?**
-→ Verify your account has admin privileges
+#### "Invalid credentials" or "Not an admin"
+**Solution:**
+- Verify username and password are correct
+- Ensure user has admin privileges on Matrix server
+- Check if user is deactivated
+- Try logging in via Matrix client first to verify credentials
 
-**Connection refused?**
-→ Check `SYNAPSE_URL` in settings matches your setup
+#### Login form only shows username/password (no server field)
+**Solution:**
+- This is normal - server field is optional
+- Enter server domain at login or use default from config.json
+- Server field will be shown after first failed attempt
 
-**Rooms not loading?**
-→ Ensure Matrix Admin API is enabled in Synapse config
+#### Dashboard shows "N/A" or "0" for statistics
+**Solution:**
+- Verify admin API is enabled on Matrix server
+- Check if user has proper admin rights
+- Wait a few seconds for data to load
+- Check browser console for errors
+- Verify Matrix server API endpoints are accessible
 
-**Media files not showing?**
-→ Check Synapse media repository configuration
+#### Pagination not working (users/rooms/spaces)
+**Solution:**
+- Clear browser cache and reload
+- Check browser console for JavaScript errors
+- Verify API responses in Network tab
+- Ensure using latest version of EPT-MX-ADM
 
-## 🗺️ Roadmap
+#### Media page shows "Error loading media data"
+**Solution:**
+- Verify `/v1/statistics/users/media` endpoint is available on Matrix server
+- Check if user has admin rights
+- Clear browser cache
+- Check server logs for errors
 
-### v0.1.0 (Q1 2025)
-- [x] Room deletion functionality
-- [x] User management improvements
-- [x] Media management
-- [x] Testing infrastructure (pytest, CI/CD)
-- [x] Code quality tools (linting, formatting)
-- [ ] Advanced room management (permissions, settings)
-- [ ] Space hierarchy view
-- [ ] Bulk user operations
+---
 
-### v0.2.0 (Q2 2025)
-- [ ] Federation management
-- [ ] Advanced analytics
-- [ ] Export/import tools
-- [ ] Plugin system foundation
+## Security
 
-### v1.0.0 (Q3 2025)
-- [ ] Stable release
-- [ ] Complete API documentation
-- [ ] Performance optimizations
-- [ ] Security audit
+### Best Practices
 
-## 📝 License
+1. **Passwords**: Use strong, unique passwords for admin accounts
+2. **Session Secret**: Change `session.secret_key` to a random string
+3. **Debug Mode**: Disable debug mode in production
+4. **HTTPS**: Always use HTTPS in production (via reverse proxy)
+5. **Access Control**: Restrict access to the application via firewall or VPN
+6. **Updates**: Keep Python, Flask, and all dependencies up to date
+7. **Logs**: Monitor application and server logs regularly
+8. **Backups**: Regular backups of configuration and data
 
-Licensed under the [MIT License](LICENSE) by EasyProTech LLC — created by Brabus.
-**No support is provided. Use at your own risk.**
+### SSL/TLS Support
 
-## 🤝 Contributing
+EPT-MX-ADM automatically:
+- Supports self-signed SSL certificates
+- Disables SSL verification for local/development servers
+- Adds `https://` to server URLs if not present
+- Suppresses SSL warnings in logs
 
-Pull Requests welcome. See `CONTRIBUTING.md`.
+For production, always use valid SSL certificates via reverse proxy.
 
-## 📞 Support
+---
 
-I do **not** provide support.
-I do **not** consult — not for free, not for money, not in any form.
+## Contributing
 
-Please don't ask for help, fixes, or explanations — this project is released as-is.
+We welcome contributions to EPT-MX-ADM!
 
-If someone wants to help with development — contributions are welcome.
-But there are **no obligations from my side** whatsoever.
+### How to Contribute
 
-## 🌐 Localized Descriptions
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
 
-### 🇬🇧 English: Modern administration panel for Matrix Synapse.
+### Development Guidelines
 
-### 🇷🇺 Русский: Современная панель администратора для Matrix Synapse.
+- Follow PEP 8 style guide for Python code
+- Add comments and docstrings
+- Update documentation for new features
+- Test your changes thoroughly
+- Update CHANGELOG.md
 
-### 🇩🇪 Deutsch: Modernes Administrationspanel für Matrix Synapse.
+### Reporting Issues
 
-### 🇫🇷 Français: Panneau d'administration moderne pour Matrix Synapse.
+Found a bug or have a feature request?
 
-### 🇮🇹 Italiano: Pannello di amministrazione moderno per Matrix Synapse.
+1. Check if issue already exists
+2. Create new issue with detailed description
+3. Include steps to reproduce (for bugs)
+4. Provide environment details (OS, Python version, Matrix Synapse version)
 
-### 🇪🇸 Español: Panel de administración moderno para Matrix Synapse.
+---
 
-### 🇹🇷 Türkçe: Matrix Synapse için modern yönetim paneli.
+## License
 
-### 🇨🇳 中文: 现代化的 Matrix Synapse 管理面板。
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### 🇯🇵 日本語: モダンな Matrix Synapse 管理パネル。
+MIT License allows you to:
+- Use the software for any purpose
+- Modify the source code
+- Distribute copies
+- Include in proprietary software
 
-### 🇦🇪 العربية: لوحة إدارة حديثة لـ Matrix Synapse.
+With the following conditions:
+- Include the original license and copyright notice
+- Provide attribution to original authors
 
-### 🇮🇱 עברית: פאנל ניהול מודרני ל-Matrix Synapse.
+---
+
+## Support
+
+### Support Policy
+
+**No Support Provided**: This project is released as-is without support, consultation, or assistance.
+
+**Community Contributions**: Development contributions are welcome but not obligated.
+
+### Resources
+
+- **Documentation**: [README.md](README.md) and [CHANGELOG.md](CHANGELOG.md)
+- **Issues**: [GitHub Issues](https://github.com/EPTLLC/EPT-MX-ADM/issues) - for bug reports only
+- **Community**: [@EasyProTech](https://t.me/EasyProTech)
+
+---
+
+## Project Information
+
+- **Project Name**: EPT-MX-ADM
+- **Version**: 1.0.0
+- **Status**: Production Ready
+- **PyPI**: [pypi.org/project/ept-mx-adm](https://pypi.org/project/ept-mx-adm/)
+- **Company**: EasyProTech LLC
+- **Website**: [www.easypro.tech](https://www.easypro.tech)
+- **Developer**: Brabus
+- **Repository**: [github.com/EPTLLC/EPT-MX-ADM](https://github.com/EPTLLC/EPT-MX-ADM)
+- **License**: MIT
+- **Python**: 3.8+
+- **Supported Languages**: EN, RU, DE, FR, IT, ES, TR, AR, HE, JA, ZH
+
+---
+
+## Acknowledgments
+
+- **Matrix Foundation** for the Matrix protocol
+- **Synapse Team** for the Matrix Synapse server
+- **Flask Team** for the amazing web framework
+- **Bootstrap Team** for the UI framework
+- **Chart.js Team** for visualization library
+- **Community Contributors** for feedback and contributions
+
+---
+
+## Changelog
+
+For detailed history of changes, see [CHANGELOG.md](CHANGELOG.md).
+
+---
+
+**Created with care by EasyProTech LLC**
+
+Visit us: [www.easypro.tech](https://www.easypro.tech) | Telegram: [@EasyProTech](https://t.me/EasyProTech)

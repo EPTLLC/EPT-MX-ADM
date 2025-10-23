@@ -1,3 +1,12 @@
+"""
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Gunicorn Configuration
+Telegram: https://t.me/EasyProTech
+"""
+
 # Gunicorn Configuration for EPT-MX-ADM
 # Production-ready settings for Matrix admin panel
 

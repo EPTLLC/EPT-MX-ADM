@@ -24,11 +24,11 @@
         <div class="card">
             <div class="card-header">
                 <i class="bi bi-funnel me-2"></i>
-                <span>Search & Filters</span>
+                <span>Filters & Search</span>
             </div>
             <div class="card-body">
-                <form method="GET" class="row g-3 align-items-end">
-                    <div class="col-md-6">
+                <form method="GET" id="filtersForm" class="row g-3 align-items-end">
+                    <div class="col-md-4">
                         <label class="form-label">{{ t('forms.search') }}</label>
                         <div class="search-box">
                             <i class="bi bi-search search-icon"></i>
@@ -38,15 +38,23 @@
                                    value="{{ search }}"
                                    placeholder="{{ t('spaces.search_placeholder', default='Search spaces...') }}">
                         </div>
+                        <input type="hidden" name="limit" value="{{ limit }}">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <label class="form-label">{{ t('pagination.rows_per_page') }}</label>
+                        <select class="form-select" onchange="changeLimit(this.value)">
+                            <option value="10" {% if limit == 10 %}selected{% endif %}>10</option>
+                            <option value="25" {% if limit == 25 %}selected{% endif %}>25</option>
+                            <option value="50" {% if limit == 50 %}selected{% endif %}>50</option>
+                            <option value="100" {% if limit == 100 %}selected{% endif %}>100</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-search me-1"></i>{{ t('forms.search') }}
                         </button>
-                    </div>
-                    <div class="col-md-3 text-end">
                         {% if search %}
-                        <a href="{{ url_for('spaces.spaces') }}" class="btn btn-outline-secondary">
+                        <a href="{{ url_for('spaces.spaces') }}" class="btn btn-outline-secondary ms-2">
                             <i class="bi bi-x-circle me-1"></i>{{ t('forms.clear') }}
                         </a>
                         {% endif %}
@@ -54,21 +62,15 @@
                 </form>
             </div>
         </div>
-        
-        <!-- API Limitation Note -->
-        <div class="alert alert-info glass-effect">
-            <i class="bi bi-info-circle me-2"></i>
-            {{ t('spaces.api_limitation_note', default='Note: Due to Synapse Admin API limitations, some spaces may be shown as regular rooms. For accurate detection, use Matrix Client API.') }}
-        </div>
     </div>
 
     <!-- Список пространств в виде карточек -->
     {% if spaces_data.rooms %}
     <div class="spaces-grid">
         {% for space in spaces_data.rooms %}
-        <div class="space-card">
-            <div class="space-card-header">
-                <div class="space-avatar">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <div class="user-avatar me-3">
                     {% if space.avatar_url %}
                     <img src="{{ space.avatar_url }}" class="avatar-image" alt="Space Avatar">
                     {% else %}
@@ -77,86 +79,60 @@
                     </div>
                     {% endif %}
                 </div>
-                <div class="space-info">
-                    <div class="space-name">{{ space.name or space.canonical_alias or (space.room_id[:20] + '...') }}</div>
-                    {% if space.topic %}
-                    <div class="space-topic">{{ space.topic[:80] }}{% if space.topic|length > 80 %}...{% endif %}</div>
-                    {% endif %}
-                    <div class="space-id">{{ space.room_id[:30] }}...</div>
+                <div class="flex-grow-1" style="min-width: 0;">
+                    <div class="fw-semibold text-truncate">{{ space.name or space.canonical_alias or 'Unnamed Space' }}</div>
+                    <div class="text-muted small text-truncate">{{ space.room_id }}</div>
                 </div>
-                <div class="space-badges">
+                <div class="d-flex flex-column align-items-end gap-1 flex-shrink-0">
                     {% if space.public %}
-                        <span class="status-badge public">
-                            <i class="bi bi-globe"></i>
-                            Public
-                        </span>
+                    <span class="badge bg-success"><i class="bi bi-globe"></i> Public</span>
                     {% else %}
-                        <span class="status-badge private">
-                            <i class="bi bi-lock"></i>
-                            Private
-                        </span>
+                    <span class="badge bg-warning"><i class="bi bi-lock"></i> Private</span>
                     {% endif %}
                 </div>
             </div>
             
-            <div class="space-card-body">
-                <div class="space-stats">
-                    <div class="stat-item">
-                        <i class="bi bi-diagram-3"></i>
-                        <span class="stat-value">{{ space.children_count or 0 }}</span>
-                        <span class="stat-label">Children</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="bi bi-people"></i>
-                        <span class="stat-value">{{ space.joined_members or 0 }}</span>
-                        <span class="stat-label">Members</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="bi bi-house-heart"></i>
-                        <span class="stat-value">{{ space.local_members or 0 }}</span>
-                        <span class="stat-label">Local</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="bi bi-tag"></i>
-                        <span class="stat-value">v{{ space.room_version or '1' }}</span>
-                        <span class="stat-label">Version</span>
-                    </div>
+            <div class="card-body">
+                {% if space.topic %}
+                <div class="mb-2 text-muted small" style="overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                    <i class="bi bi-info-circle"></i> {{ space.topic }}
                 </div>
+                {% endif %}
                 
-                <div class="space-meta">
-                    {% if space.creator and space.creator != 'Unknown' %}
-                    <div class="meta-item">
-                        <i class="bi bi-person-plus"></i>
-                        <span>Created by: <a href="{{ url_for('users.edit_user', user_id=space.creator) }}" class="creator-link">{{ space.creator }}</a></span>
+                {% if space.creation_ts %}
+                <div class="mb-2 text-muted small">
+                    <i class="bi bi-calendar-plus"></i> {{ space.creation_ts | datetime_format }}
+                </div>
+                {% endif %}
+                
+                <div class="row g-2 mt-2">
+                    <div class="col-6">
+                        <div class="text-muted small">
+                            <i class="bi bi-people me-1"></i>
+                            <strong>{{ space.joined_members or 0 }}</strong> members
+                        </div>
                     </div>
-                    {% endif %}
-                    {% if space.creation_ts %}
-                    <div class="meta-item">
-                        <i class="bi bi-calendar-plus"></i>
-                        <span>{{ space.creation_ts | datetime_format }}</span>
+                    <div class="col-6">
+                        <div class="text-muted small">
+                            <i class="bi bi-diagram-3 me-1"></i>
+                            <strong>{{ space.children_count or 0 }}</strong> children
+                        </div>
                     </div>
-                    {% endif %}
                 </div>
             </div>
             
-            <div class="space-card-actions">
+            <div class="card-footer d-flex gap-2 justify-content-end">
                 <button type="button" 
-                        class="action-btn primary" 
+                        class="btn btn-outline-primary btn-sm" 
                         onclick="viewSpace('{{ space.room_id }}')"
                         title="{{ t('spaces.view_space') }}">
-                    <i class="bi bi-eye"></i>
+                    <i class="bi bi-eye me-1"></i>View
                 </button>
                 <button type="button" 
-                        class="action-btn info" 
+                        class="btn btn-outline-info btn-sm" 
                         onclick="viewHierarchy('{{ space.room_id }}')"
                         title="{{ t('spaces.hierarchy') }}">
-                    <i class="bi bi-diagram-3"></i>
-                </button>
-                <button type="button" 
-                        class="action-btn warning" 
-                        onclick="editSpace('{{ space.room_id }}')"
-                        title="{{ t('spaces.edit_space') }}">
-                    <i class="bi bi-pencil"></i>
+                    <i class="bi bi-diagram-3 me-1"></i>Hierarchy
                 </button>
             </div>
         </div>
@@ -180,27 +156,69 @@
     {% endif %}
     
     <!-- Пагинация -->
-    {% if spaces_data.rooms and (spaces_data.next_token or from_token) %}
-    <div class="pagination-section">
-        <nav aria-label="Pagination">
-            <ul class="pagination justify-content-center">
-                {% if from_token %}
+    {% if total > 0 %}
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <div class="pagination-text">
+            {{ t('pagination.showing') }} 
+            {{ ((current_page - 1) * limit + 1) if total > 0 else 0 }} - 
+            {{ (current_page * limit) if (current_page * limit) < total else total }} 
+            {{ t('pagination.of') }} {{ total }} {{ t('pagination.entries') }}
+        </div>
+        
+        {% if total_pages > 1 %}
+        <nav aria-label="Spaces pagination">
+            <ul class="pagination mb-0">
+                {% if current_page > 1 %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ url_for('spaces', search=search) }}">
-                        <i class="bi bi-chevron-left me-1"></i>{{ t('pagination.first') }}
+                    <a class="page-link" href="#" onclick="goToPage(1)">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="goToPagePrev()">
+                        <i class="bi bi-chevron-left"></i>
                     </a>
                 </li>
                 {% endif %}
                 
-                {% if spaces_data.next_token %}
+                {% set start_page = [1, current_page - 2] | max %}
+                {% set end_page = [total_pages, current_page + 2] | min %}
+                
+                {% if start_page > 1 %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+                
+                {% for page_num in range(start_page, end_page + 1) %}
+                <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                    <a class="page-link" href="#" onclick="goToPage({{ page_num }})">
+                        {{ page_num }}
+                    </a>
+                </li>
+                {% endfor %}
+                
+                {% if end_page < total_pages %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+                
+                {% if current_page < total_pages %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ url_for('spaces', search=search, from=spaces_data.next_token) }}">
-                        {{ t('pagination.next') }}<i class="bi bi-chevron-right ms-1"></i>
+                    <a class="page-link" href="#" onclick="goToPageNext()">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="goToPageLast()">
+                        <i class="bi bi-chevron-double-right"></i>
                     </a>
                 </li>
                 {% endif %}
             </ul>
         </nav>
+        {% endif %}
     </div>
     {% endif %}
 </div>
@@ -394,6 +412,40 @@ function displayHierarchy(hierarchy) {
 function editSpace(spaceId) {
     // Переход на страницу редактирования
     window.location.href = '/spaces/' + spaceId + '/edit';
+}
+
+function changeLimit(newLimit) {
+    const params = new URLSearchParams(window.location.search);
+    params.set('limit', newLimit);
+    params.set('page', '1'); // Reset to first page
+    window.location.search = params.toString();
+}
+
+// Pagination functions
+function goToPage(page) {
+    const url = new URL(window.location);
+    url.searchParams.set('page', page);
+    window.location.href = url.toString();
+}
+
+function goToPagePrev() {
+    const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+    if (currentPage > 1) {
+        goToPage(currentPage - 1);
+    }
+}
+
+function goToPageNext() {
+    const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+    const totalPages = {{ total_pages }};
+    if (currentPage < totalPages) {
+        goToPage(currentPage + 1);
+    }
+}
+
+function goToPageLast() {
+    const totalPages = {{ total_pages }};
+    goToPage(totalPages);
 }
 </script>
 {% endblock %} 

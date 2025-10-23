@@ -1,4 +1,13 @@
 #!/bin/bash
+#
+# Project: EPT-MX-ADM
+# Company: EasyProTech LLC (www.easypro.tech)
+# Dev: Brabus
+# Date: Thu 23 Oct 2025 22:56:11 UTC
+# Status: Assets Installer
+# Telegram: https://t.me/EasyProTech
+#
+
 # EPT-MX-ADM Assets Installer
 # Downloads all required static assets automatically
 

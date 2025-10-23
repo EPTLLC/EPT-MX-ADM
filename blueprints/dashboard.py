@@ -1,4 +1,11 @@
 """
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Dashboard Blueprint
+Telegram: https://t.me/EasyProTech
+
 Dashboard Blueprint for EPT-MX-ADM
 Only Matrix-specific metrics, no system metrics
 """

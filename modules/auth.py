@@ -1,4 +1,11 @@
 """
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Authentication Module
+Telegram: https://t.me/EasyProTech
+
 Authentication module for EPT-MX-ADM
 Compact and modular authentication system
 """
@@ -10,6 +17,10 @@ import json
 from config.settings import Config
 from utils.logger import get_logger
 from utils.i18n import t
+
+# Disable SSL warnings for self-signed certificates
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = get_logger()
 
@@ -34,45 +45,71 @@ class AuthManager:
             }
         return None
     
-    def login_user(self, username, password):
+    def login_user(self, username, password, matrix_server=None):
         """Login user with username and password"""
         try:
+            # Use provided server or default from config
+            server_input = matrix_server or Config.SYNAPSE_URL
+            
+            # Smart server URL formatting
+            # If no protocol specified, add https://
+            if not server_input.startswith(('http://', 'https://')):
+                server_url = f'https://{server_input}'
+            else:
+                server_url = server_input
+            
+            # Remove trailing slash if present
+            server_url = server_url.rstrip('/')
+            
+            # Smart username formatting
+            # If username doesn't contain @, format it as @username:domain
+            if not username.startswith('@'):
+                # Extract domain from server URL
+                from urllib.parse import urlparse
+                parsed = urlparse(server_url)
+                domain = parsed.netloc
+                user_id = f'@{username}:{domain}'
+            else:
+                user_id = username
+            
             # Prepare login data
             login_data = {
                 'type': 'm.login.password',
-                'user': username,
+                'user': user_id,
                 'password': password
             }
             
-            # Make login request
+            # Make login request (disable SSL verification for self-signed certs)
             response = requests.post(
-                f"{Config.SYNAPSE_URL}/_matrix/client/r0/login",
+                f"{server_url}/_matrix/client/r0/login",
                 json=login_data,
-                timeout=10
+                timeout=10,
+                verify=False  # Disable SSL verification
             )
             
             if response.status_code == 200:
                 data = response.json()
                 
-                # Store session data
+                # Store session data including the server URL
                 session['access_token'] = data.get('access_token')
                 session['username'] = username
                 session['user_id'] = data.get('user_id')
                 session['device_id'] = data.get('device_id')
+                session['matrix_server'] = server_url  # Save server URL
                 
                 # Check admin status
-                self._check_admin_status(username)
+                self._check_admin_status(user_id, server_url)
                 
-                logger.info(f"User {username} logged in successfully")
+                logger.info(f"User {user_id} logged in successfully to {server_url}")
                 return True
             else:
-                logger.warning(f"Login failed for {username}: {response.status_code}")
+                logger.warning(f"Login failed for {user_id}: {response.status_code}")
                 flash(t('auth.invalid_credentials'), 'danger')
                 return False
                 
         except Exception as e:
             logger.error(f"Login error: {str(e)}")
-            flash(t('auth.login_error'), 'danger')
+            flash(f'Connection error: {str(e)}', 'danger')
             return False
     
     def logout_user(self):
@@ -82,11 +119,12 @@ class AuthManager:
         if username:
             logger.info(f"User {username} logged out")
     
-    def _check_admin_status(self, username):
+    def _check_admin_status(self, username, server_url=None):
         """Check if user is admin via Matrix API"""
         try:
             user_id = session.get('user_id')
             access_token = session.get('access_token')
+            server = server_url or session.get('matrix_server') or Config.SYNAPSE_URL
             
             if not user_id or not access_token:
                 session['is_admin'] = False
@@ -95,9 +133,10 @@ class AuthManager:
             # Check admin status via Matrix API
             headers = {'Authorization': f'Bearer {access_token}'}
             response = requests.get(
-                f"{Config.SYNAPSE_URL}/_synapse/admin/v1/users/{user_id}/admin",
+                f"{server}/_synapse/admin/v1/users/{user_id}/admin",
                 headers=headers,
-                timeout=10
+                timeout=10,
+                verify=False  # Disable SSL verification
             )
             
             if response.status_code == 200:
@@ -126,9 +165,9 @@ class AuthManager:
 class SynapseAPIClient:
     """Simple Synapse API client"""
     
-    def __init__(self, access_token):
+    def __init__(self, access_token, server_url=None):
         self.access_token = access_token
-        self.base_url = Config.SYNAPSE_URL
+        self.base_url = server_url or session.get('matrix_server') or Config.SYNAPSE_URL
         self.admin_url = f"{self.base_url}/_synapse/admin"
     
     def get(self, endpoint, params=None):
@@ -137,7 +176,7 @@ class SynapseAPIClient:
         url = f"{self.admin_url}{endpoint}"
         
         try:
-            response = requests.get(url, headers=headers, params=params, timeout=10)
+            response = requests.get(url, headers=headers, params=params, timeout=10, verify=False)
             return response
         except Exception as e:
             logger.error(f"API GET error: {str(e)}")
@@ -152,7 +191,7 @@ class SynapseAPIClient:
         url = f"{self.admin_url}{endpoint}"
         
         try:
-            response = requests.post(url, headers=headers, json=data, timeout=10)
+            response = requests.post(url, headers=headers, json=data, timeout=10, verify=False)
             return response
         except Exception as e:
             logger.error(f"API POST error: {str(e)}")
@@ -167,7 +206,7 @@ class SynapseAPIClient:
         url = f"{self.admin_url}{endpoint}"
         
         try:
-            response = requests.put(url, headers=headers, json=data, timeout=10)
+            response = requests.put(url, headers=headers, json=data, timeout=10, verify=False)
             return response
         except Exception as e:
             logger.error(f"API PUT error: {str(e)}")
@@ -181,7 +220,7 @@ class SynapseAPIClient:
         url = f"{self.admin_url}{endpoint}"
         
         try:
-            response = requests.delete(url, headers=headers, json=json, timeout=10, **kwargs)
+            response = requests.delete(url, headers=headers, json=json, timeout=10, verify=False, **kwargs)
             return response
         except Exception as e:
             logger.error(f"API DELETE error: {str(e)}")

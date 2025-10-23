@@ -11,16 +11,19 @@ ENV/
 # Logs
 logs/
 *.log
-
+debug.log
 
 # Temp files
 *.bak
 *.swp
 *~
+*.tmp
+cookies.txt
 
 # IDE
 .idea/
 .vscode/
+---vscode/
 
 # OS-specific
 .DS_Store
@@ -33,8 +36,22 @@ htmlcov/
 .mypy_cache/
 coverage.xml
 bandit-report.json
+pytest.ini.backup
 
-# Build
+# Build & Distribution (PyPI)
 dist/
 build/
 *.egg-info/
+.eggs/
+
+# PyPI credentials (NEVER commit!)
+.pypirc
+
+# Screenshots/screen captures
+screen/
+screenshots/
+
+# Local config overrides
+config.local.json
+.env
+.env.local

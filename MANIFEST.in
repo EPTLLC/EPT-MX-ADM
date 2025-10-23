@@ -1,0 +1,17 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include requirements.txt
+include config.json
+include install_assets.sh
+include run.sh
+include gunicorn.conf.py
+
+recursive-include templates *.html
+recursive-include static *.css *.js
+recursive-include locales *.json
+recursive-include api_info *.md
+
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude .DS_Store

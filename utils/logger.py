@@ -1,4 +1,11 @@
 """
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Logging System
+Telegram: https://t.me/EasyProTech
+
 Logging system for EPT-MX-ADM
 """
 import logging

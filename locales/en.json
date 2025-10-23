@@ -4,7 +4,6 @@
     "version": "Version",
     "welcome": "Welcome"
   },
-  
   "auth": {
     "login": "Login",
     "logout": "Logout",
@@ -21,7 +20,6 @@
     "no_admin_rights": "You don't have administrator rights",
     "admin_only_access": "Access only for server administrators"
   },
-  
   "navigation": {
     "dashboard": "Dashboard",
     "users": "Users",
@@ -32,7 +30,6 @@
     "logs": "Logs",
     "quick_actions": "Quick Actions"
   },
-  
   "dashboard": {
     "title": "Dashboard",
     "total_users": "Total Users",
@@ -78,7 +75,6 @@
     "command": "Command",
     "system_metrics_unavailable": "System metrics temporarily unavailable"
   },
-  
   "users": {
     "title": "User Management",
     "create_user": "Create User",
@@ -164,7 +160,6 @@
     "no_media_description": "This user has no uploaded media files",
     "media_count": "Media count"
   },
-  
   "rooms": {
     "title": "Room Management",
     "room_id": "Room ID",
@@ -217,7 +212,6 @@
     "advanced_filters": "Advanced Filters",
     "show_columns": "Show Columns"
   },
-  
   "spaces": {
     "title": "Space Management",
     "space_id": "Space ID",
@@ -233,10 +227,8 @@
     "hierarchy": "Hierarchy",
     "search_placeholder": "Search spaces...",
     "no_spaces": "No spaces found",
-    "create_first": "Create the first space to organize rooms",
-    "api_limitation_note": "Note: Due to Synapse Admin API limitations, some spaces may be shown as regular rooms. For accurate detection, use Matrix Client API."
+    "create_first": "Create the first space to organize rooms"
   },
-  
   "forms": {
     "save": "Save",
     "cancel": "Cancel",
@@ -258,7 +250,6 @@
     "copy": "Copy",
     "back_to_profile": "Back to Profile"
   },
-  
   "messages": {
     "loading": "Loading...",
     "error": "Error",
@@ -279,7 +270,6 @@
     "loading_media": "Loading media files...",
     "error_loading_media": "Error loading media files"
   },
-  
   "pagination": {
     "previous": "Previous",
     "next": "Next",
@@ -296,7 +286,6 @@
     "total_items": "Total items",
     "time_of_send": "Send Time"
   },
-  
   "analytics": {
     "title": "Analytics",
     "user_stats": "User Statistics",
@@ -309,7 +298,6 @@
     "monthly": "Monthly",
     "yearly": "Yearly"
   },
-  
   "settings": {
     "title": "Settings",
     "language": "Language",
@@ -323,12 +311,10 @@
     "light_theme": "Light Theme",
     "dark_theme": "Dark Theme"
   },
-  
   "footer": {
     "copyright": "By Brabus (EPT)",
     "website_url": "https://easypro.tech/"
   },
-  
   "errors": {
     "room_not_found": "Room not found",
     "space_not_found": "Space not found",
@@ -340,10 +326,9 @@
     "error_space_details": "Error getting space details",
     "error_space_hierarchy": "Error getting hierarchy"
   },
-  
   "room_modal": {
     "basic_tab": "BASIC",
-    "details_tab": "DETAILS", 
+    "details_tab": "DETAILS",
     "members_tab": "MEMBERS",
     "permissions_tab": "PERMISSIONS",
     "state_events_tab": "STATE EVENTS",
@@ -366,7 +351,6 @@
     "state_group": "State group",
     "forward_extremities_description": "Forward extremities are the leaf events at the end of a Directed acyclic graph (DAG) in a room, aka events that have no children. The more exist in a room, the more state resolution that Synapse needs to perform (hint: it's an expensive operation). While Synapse has code to prevent too many of these existing at one time in a room, bugs can sometimes make them crop up again. If a room has >10 forward extremities, it's worth checking which room is the culprit and potentially removing them using the SQL queries mentioned in #1760."
   },
-  
   "media": {
     "title": "Users' media",
     "users_list": "Users with media",
@@ -430,4 +414,4 @@
     "error_unquarantine": "Error marking media as safe",
     "error_delete_media": "Error deleting media file"
   }
-} 
+}

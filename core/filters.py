@@ -1,4 +1,11 @@
 """
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Jinja2 Filters
+Telegram: https://t.me/EasyProTech
+
 Jinja2 filters for EPT-MX-ADM
 """
 

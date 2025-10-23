@@ -1,7 +1,7 @@
 {
   "name": "EPT-MX-ADM",
-  "version": "0.0.1-beta",
-  "description": "Matrix Synapse Administration Panel (Beta)",
+  "version": "1.0.0",
+  "description": "Matrix Synapse Administration Panel",
   "author": "EasyProTech (EPTLLC)",
   "license": "MIT",
   "main": "app.py",

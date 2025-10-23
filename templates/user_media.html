@@ -1,526 +1,319 @@
+{#
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:41:32 UTC
+Status: Created
+Telegram: https://t.me/EasyProTech
+#}
+
 {% extends "base.html" %}
 
-{% block title %}{{ t('media.user_media_title', user_id=user_id) }}{% endblock %}
+{% block title %}{{ user_id }} Media - {{ t('app.name') }}{% endblock %}
 
 {% block content %}
-<style>
-/* Стили для заголовков таблицы */
-.table thead th {
-    background: #4e73df !important;
-    color: white !important;
-    border: none !important;
-    font-weight: 600 !important;
-    text-transform: uppercase !important;
-    font-size: 0.85rem !important;
-    padding: 1rem 0.75rem !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 10 !important;
-}
-
-.table thead th:first-child {
-    border-top-left-radius: 0.5rem !important;
-}
-
-.table thead th:last-child {
-    border-top-right-radius: 0.5rem !important;
-}
-
-/* Стили для медиа файлов */
-.media-file-row {
-    transition: all 0.2s ease;
-}
-
-.media-file-row:hover {
-    background-color: #f8f9fa;
-}
-
-.media-id {
-    font-family: 'Courier New', monospace;
-    font-size: 0.8rem;
-    background: #f8f9fa;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    color: #495057;
-    word-break: break-all;
-}
-
-.file-type-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.file-type-image {
-    background: #d4edda;
-    color: #155724;
-}
-
-.file-type-video {
-    background: #cce7ff;
-    color: #004085;
-}
-
-.file-type-audio {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.file-type-document {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.file-type-other {
-    background: #e2e3e5;
-    color: #383d41;
-}
-
-.quarantine-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.status-quarantined {
-    background: #f8d7da;
-    color: #721c24;
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.status-safe {
-    background: #d4edda;
-    color: #155724;
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.status-normal {
-    background: #e2e3e5;
-    color: #383d41;
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.user-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 2rem 0;
-    margin-bottom: 2rem;
-    border-radius: 1rem;
-}
-
-.user-avatar-large {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 2rem;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-}
-
-.media-stats-card {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0.75rem;
-    backdrop-filter: blur(10px);
-}
-
-/* Модальное окно подтверждения */
-.confirmation-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    font-size: 1.5rem;
-}
-
-.danger-icon {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.warning-icon {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.success-icon {
-    background: #d4edda;
-    color: #155724;
-}
-</style>
-
-<div class="container-fluid fade-in-up">
-    <!-- Заголовок пользователя -->
-    <div class="user-header">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-auto">
-                    <div class="user-avatar-large">
-                        {{ user_display_name[0].upper() if user_display_name else user_id[0].upper() }}
-                    </div>
-                </div>
-                <div class="col">
-                    <h1 class="h2 mb-1">{{ user_display_name or user_id }}</h1>
-                    <p class="mb-2 opacity-75">{{ user_id }}</p>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="media-stats-card px-3 py-2">
-                            <strong>{{ media_data.total_count or 0 }}</strong> {{ t('media.files_total') }}
+<div class="fade-in-up">
+    <!-- Header -->
+    <div class="header-section mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h2 text-gradient mb-0">
+                <i class="bi bi-file-earmark-play me-2"></i>User Media
+            </h1>
+            <div class="header-actions">
+                <a href="{{ url_for('media.export_user_media', user_id=user_id) }}" class="btn btn-success me-2">
+                    <i class="bi bi-download me-1"></i>Export CSV
+                </a>
+                <a href="{{ url_for('media.users_media') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to list
+                </a>
+            </div>
+        </div>
+        
+        <!-- User info and filters card -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center mb-3">
+                    <div class="col-auto">
+                        <div class="user-avatar me-3">
+                            <div class="avatar-circle">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
                         </div>
-                        <div class="media-stats-card px-3 py-2">
-                            <strong>{{ format_file_size(media_data.total_size) if media_data.total_size else '0 B' }}</strong> {{ t('media.size_total') }}
+                    </div>
+                    <div class="col">
+                        <h3 class="mb-1">{{ user_display_name or user_id }}</h3>
+                        <p class="text-muted mb-2">{{ user_id }}</p>
+                        <div class="d-flex gap-4">
+                            <div>
+                                <div class="text-muted small">Total storage</div>
+                                <div class="fw-bold">
+                                    <i class="bi bi-hdd me-1"></i>
+                                    {{ media_data.total_size_formatted or '0 B' }}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-muted small">Total files</div>
+                                <div class="fw-bold">
+                                    <i class="bi bi-file-earmark-play me-1"></i>
+                                    {{ media_data.total_count or 0 }}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-muted small">On this page</div>
+                                <div class="fw-bold text-primary">
+                                    <i class="bi bi-eye me-1"></i>
+                                    {{ media_data.files_on_page or 0 }} files / {{ media_data.size_on_page_formatted or '0 B' }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-auto">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-light" onclick="exportUserMedia()">
-                            <i class="bi bi-download me-1"></i>
-                            {{ t('media.export_csv') }}
+                
+                <hr class="my-3">
+                
+                <!-- Filters row -->
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">File type</label>
+                        <select class="form-select" id="fileTypeFilter">
+                            <option value="">All types</option>
+                            <option value="image">Images</option>
+                            <option value="video">Videos</option>
+                            <option value="audio">Audio</option>
+                            <option value="document">Documents</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="statusFilter">
+                            <option value="">All statuses</option>
+                            <option value="normal">Normal</option>
+                            <option value="quarantined">Quarantined</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Rows per page</label>
+                        <select class="form-select" id="limitFilter" onchange="applyFilters()">
+                            <option value="25" {{ 'selected' if limit == 25 else '' }}>25</option>
+                            <option value="50" {{ 'selected' if limit == 50 else '' }}>50</option>
+                            <option value="100" {{ 'selected' if limit == 100 else '' }}>100</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-primary w-100" onclick="applyFilters()">
+                            <i class="bi bi-funnel me-1"></i>Apply
                         </button>
-                        <a href="/users-media" class="btn btn-outline-light">
-                            <i class="bi bi-arrow-left me-1"></i>
-                            {{ t('media.back_to_list') }}
-                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                            <i class="bi bi-x-circle me-1"></i>Clear
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Фильтры и поиск -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-3">
-                            <label class="form-label">{{ t('media.file_type') }}</label>
-                            <select class="form-select" id="fileTypeFilter" onchange="applyFilters()">
-                                <option value="">{{ t('media.all_types') }}</option>
-                                <option value="image">{{ t('media.images') }}</option>
-                                <option value="video">{{ t('media.videos') }}</option>
-                                <option value="audio">{{ t('media.audio') }}</option>
-                                <option value="document">{{ t('media.documents') }}</option>
-                                <option value="other">{{ t('media.other') }}</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">{{ t('media.quarantine_status') }}</label>
-                            <select class="form-select" id="quarantineFilter" onchange="applyFilters()">
-                                <option value="">{{ t('media.all_statuses') }}</option>
-                                <option value="quarantined">{{ t('media.quarantined') }}</option>
-                                <option value="safe">{{ t('media.safe_from_quarantine') }}</option>
-                                <option value="normal">{{ t('media.normal') }}</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">{{ t('pagination.rows_per_page') }}</label>
-                            <select class="form-select" onchange="changeLimit(this.value)">
-                                <option value="25" {% if limit == 25 %}selected{% endif %}>25</option>
-                                <option value="50" {% if limit == 50 %}selected{% endif %}>50</option>
-                                <option value="100" {% if limit == 100 %}selected{% endif %}>100</option>
-                                <option value="200" {% if limit == 200 %}selected{% endif %}>200</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <button type="button" class="btn btn-primary me-2" onclick="applyFilters()">
-                                <i class="bi bi-funnel me-1"></i>
-                                {{ t('media.apply_filters') }}
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">
-                                <i class="bi bi-x-circle me-1"></i>
-                                {{ t('forms.clear') }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Media files list -->
+    {% if media_data.media %}
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>
+                <i class="bi bi-file-earmark-play me-2"></i>
+                Media files <span class="badge bg-primary ms-2">{{ media_data.total_count or media_data.media|length }}</span>
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Media ID</th>
+                        <th>Type</th>
+                        <th>File Name</th>
+                        <th>Size</th>
+                        <th>Created</th>
+                        <th>Last Access</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for media in media_data.media %}
+                    <tr>
+                        <td>
+                            <code class="small">{{ media.media_id }}</code>
+                        </td>
+                        <td>
+                            {% if media.file_type %}
+                                {% if media.file_type == 'image' %}
+                                <span class="badge bg-success">Image</span>
+                                {% elif media.file_type == 'video' %}
+                                <span class="badge bg-primary">Video</span>
+                                {% elif media.file_type == 'audio' %}
+                                <span class="badge bg-warning">Audio</span>
+                                {% elif media.file_type == 'document' %}
+                                <span class="badge bg-info">Document</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Other</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary">Unknown</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ media.upload_name or '-' }}">
+                                {{ media.upload_name or '-' }}
+                            </span>
+                        </td>
+                        <td>{{ media.file_size_formatted or '0 B' }}</td>
+                        <td>
+                            {% if media.created_ts %}
+                                {{ media.created_ts | datetime_format }}
+                            {% else %}
+                                Unknown
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if media.last_access_ts %}
+                                {{ media.last_access_ts | datetime_format }}
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                {% if media.is_quarantined %}
+                                <span class="badge bg-danger me-1">Quarantined</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-
-    <!-- Таблица медиа файлов -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-file-earmark-play me-2"></i>
-                        {{ t('media.media_files') }}
-                        {% if media_data.media %}
-                        <span class="badge bg-primary ms-2">{{ media_data.media|length }}</span>
-                        {% endif %}
-                    </h5>
-                </div>
-                <div class="card-body p-0">
-                    {% if media_data.media %}
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>{{ t('media.media_id') }}</th>
-                                    <th>{{ t('media.created') }}</th>
-                                    <th>{{ t('media.last_access') }}</th>
-                                    <th class="text-end">{{ t('media.file_size') }}</th>
-                                    <th>{{ t('media.file_type') }}</th>
-                                    <th>{{ t('media.file_name') }}</th>
-                                    <th>{{ t('media.quarantine') }}</th>
-                                    <th>{{ t('media.safe_from_quarantine') }}</th>
-                                    <th class="text-center">{{ t('forms.actions') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for media in media_data.media %}
-                                <tr class="media-file-row" data-media-id="{{ media.media_id }}">
-                                    <td>
-                                        <div class="media-id">{{ media.media_id[:16] }}...</div>
-                                    </td>
-                                    <td>
-                                        <small>{{ media.created_formatted or t('messages.unknown') }}</small>
-                                    </td>
-                                    <td>
-                                        <small>{{ media.last_access_formatted or t('messages.unknown') }}</small>
-                                    </td>
-                                    <td class="text-end">
-                                        <strong>{{ media.file_size_formatted }}</strong>
-                                    </td>
-                                    <td>
-                                        <span class="file-type-badge file-type-{{ media.file_type }}">
-                                            {{ media.file_type }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="text-truncate" style="max-width: 200px;" title="{{ media.upload_name or '-' }}">
-                                            {{ media.upload_name or '-' }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {% if media.is_quarantined %}
-                                        <span class="status-quarantined">
-                                            <i class="bi bi-shield-x me-1"></i>
-                                            {{ t('media.quarantined') }}
-                                        </span>
-                                        {% else %}
-                                        <span class="text-muted">-</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if media.is_safe_from_quarantine %}
-                                        <span class="status-safe">
-                                            <i class="bi bi-shield-check me-1"></i>
-                                            {{ t('media.safe') }}
-                                        </span>
-                                        {% else %}
-                                        <span class="text-muted">-</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm">
-                                            {% if not media.is_quarantined %}
-                                            <button type="button" 
-                                                    class="btn btn-outline-warning" 
-                                                    onclick="quarantineMedia('{{ media.media_id }}')"
-                                                    title="{{ t('media.quarantine_action') }}">
-                                                <i class="bi bi-shield-x"></i>
-                                            </button>
-                                            {% endif %}
-                                            
-                                            {% if media.is_quarantined and not media.is_safe_from_quarantine %}
-                                            <button type="button" 
-                                                    class="btn btn-outline-success" 
-                                                    onclick="unquarantineMedia('{{ media.media_id }}')"
-                                                    title="{{ t('media.safe_from_quarantine_action') }}">
-                                                <i class="bi bi-shield-check"></i>
-                                            </button>
-                                            {% endif %}
-                                            
-                                            <button type="button" 
-                                                    class="btn btn-outline-danger" 
-                                                    onclick="deleteMedia('{{ media.media_id }}')"
-                                                    title="{{ t('media.delete_action') }}">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-file-earmark-x text-muted mb-3" style="font-size: 3rem;"></i>
-                        <h5 class="text-muted">{{ t('media.no_media_files') }}</h5>
-                        <p class="text-muted">{{ t('media.user_has_no_media') }}</p>
-                        <a href="/users-media" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-left me-1"></i>
-                            {{ t('media.back_to_list') }}
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-file-earmark-play"></i>
         </div>
-    </div>
-
-    <!-- Пагинация -->
-    {% if media_data.next_token or current_page > 1 %}
-    <div class="row mt-4">
-        <div class="col-12">
-            <nav aria-label="Pagination">
-                <ul class="pagination justify-content-center">
-                    <!-- Предыдущая страница -->
-                    {% if current_page > 1 %}
-                    <li class="page-item">
-                        <a class="page-link" href="#" onclick="goToPagePrev()">
-                            <i class="bi bi-chevron-left me-1"></i>
-                            {{ t('pagination.previous') }}
-                        </a>
-                    </li>
-                    {% endif %}
-                    
-                    <!-- Текущая страница -->
-                    <li class="page-item active">
-                        <span class="page-link">{{ current_page }}</span>
-                    </li>
-                    
-                    <!-- Следующая страница -->
-                    {% if media_data.next_token %}
-                    <li class="page-item">
-                        <a class="page-link" href="#" onclick="goToPageNext()">
-                            {{ t('pagination.next') }}
-                            <i class="bi bi-chevron-right ms-1"></i>
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
+        <h5>No media files found</h5>
+        <p>This user has no media files yet.</p>
     </div>
     {% endif %}
-</div>
 
-<!-- Модальные окна для подтверждений -->
-<!-- Quarantine Modal -->
-<div class="modal fade" id="quarantineModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-warning">
-                    <i class="bi bi-shield-x me-2"></i>
-                    {{ t('media.quarantine_file') }}
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center">
-                <div class="warning-icon">
-                    <i class="bi bi-shield-x"></i>
-                </div>
-                <p>{{ t('media.quarantine_confirm') }}</p>
-                <small class="text-muted">{{ t('media.quarantine_description') }}</small>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    {{ t('forms.cancel') }}
-                </button>
-                <button type="button" class="btn btn-warning" id="confirmQuarantine">
-                    <i class="bi bi-shield-x me-1"></i>
-                    {{ t('media.quarantine') }}
-                </button>
-            </div>
+    <!-- Pagination -->
+    {% if total > 0 %}
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <div class="pagination-text">
+            {{ t('pagination.showing') }} 
+            {{ ((current_page - 1) * limit + 1) if total > 0 else 0 }} - 
+            {{ (current_page * limit) if (current_page * limit) < total else total }} 
+            {{ t('pagination.of') }} {{ total }} {{ t('pagination.entries') }}
         </div>
+        
+        {% if total_pages > 1 %}
+        <nav aria-label="User media pagination">
+            <ul class="pagination mb-0">
+                {% if current_page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="goToPage(1)">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="goToPagePrev()">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% set start_page = [1, current_page - 2] | max %}
+                {% set end_page = [total_pages, current_page + 2] | min %}
+                
+                {% if start_page > 1 %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+                
+                {% for page_num in range(start_page, end_page + 1) %}
+                <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                    <a class="page-link" href="#" onclick="goToPage('{{ page_num }}')">
+                        {{ page_num }}
+                    </a>
+                </li>
+                {% endfor %}
+                
+                {% if end_page < total_pages %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+                
+                {% if current_page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="goToPageNext()">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="goToPageLast()">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
-</div>
-
-<!-- Unquarantine Modal -->
-<div class="modal fade" id="unquarantineModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-success">
-                    <i class="bi bi-shield-check me-2"></i>
-                    {{ t('media.safe_from_quarantine') }}
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center">
-                <div class="success-icon">
-                    <i class="bi bi-shield-check"></i>
-                </div>
-                <p>{{ t('media.unquarantine_confirm') }}</p>
-                <small class="text-muted">{{ t('media.unquarantine_description') }}</small>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    {{ t('forms.cancel') }}
-                </button>
-                <button type="button" class="btn btn-success" id="confirmUnquarantine">
-                    <i class="bi bi-shield-check me-1"></i>
-                    {{ t('media.mark_safe') }}
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-danger">
-                    <i class="bi bi-trash me-2"></i>
-                    {{ t('media.delete_file') }}
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center">
-                <div class="danger-icon">
-                    <i class="bi bi-trash"></i>
-                </div>
-                <p>{{ t('media.delete_confirm') }}</p>
-                <small class="text-muted text-danger">{{ t('media.delete_warning') }}</small>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    {{ t('forms.cancel') }}
-                </button>
-                <button type="button" class="btn btn-danger" id="confirmDelete">
-                    <i class="bi bi-trash me-1"></i>
-                    {{ t('forms.delete') }}
-                </button>
-            </div>
-        </div>
-    </div>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-let currentMediaId = null;
-
-function applyFilters() {
+// Pagination functions
+function goToPage(page) {
     const url = new URL(window.location);
+    url.searchParams.set('page', parseInt(page));
+    window.location.href = url.toString();
+}
+
+function goToPagePrev() {
+    const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+    if (currentPage > 1) {
+        goToPage(currentPage - 1);
+    }
+}
+
+function goToPageNext() {
+    const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+    const totalPages = parseInt('{{ total_pages }}');
+    if (currentPage < totalPages) {
+        goToPage(currentPage + 1);
+    }
+}
+
+function goToPageLast() {
+    const totalPages = parseInt('{{ total_pages }}');
+    goToPage(totalPages);
+}
+
+// Export
+function exportUserMedia() {
+    window.location.href = '{{ url_for("media.export_user_media", user_id=user_id) }}';
+}
+
+// Filters
+function applyFilters() {
     const fileType = document.getElementById('fileTypeFilter').value;
-    const quarantineStatus = document.getElementById('quarantineFilter').value;
+    const status = document.getElementById('statusFilter').value;
+    const limit = document.getElementById('limitFilter').value;
+    
+    const url = new URL(window.location);
+    url.searchParams.set('page', '1'); // Reset to first page
     
     if (fileType) {
         url.searchParams.set('file_type', fileType);
@@ -528,160 +321,29 @@ function applyFilters() {
         url.searchParams.delete('file_type');
     }
     
-    if (quarantineStatus) {
-        url.searchParams.set('quarantine', quarantineStatus);
+    if (status) {
+        url.searchParams.set('quarantine', status);
     } else {
         url.searchParams.delete('quarantine');
     }
     
-    url.searchParams.set('page', '1');
+    if (limit) {
+        url.searchParams.set('limit', limit);
+    }
+    
     window.location.href = url.toString();
 }
 
 function clearFilters() {
-    const url = new URL(window.location.origin + window.location.pathname);
-    const currentLimit = new URLSearchParams(window.location.search).get('limit') || '25';
-    url.searchParams.set('limit', currentLimit);
-    window.location.href = url.toString();
-}
-
-function changeLimit(newLimit) {
     const url = new URL(window.location);
-    url.searchParams.set('limit', newLimit);
+    url.searchParams.delete('file_type');
+    url.searchParams.delete('quarantine');
     url.searchParams.set('page', '1');
+    url.searchParams.set('limit', '25'); // Reset to default
     window.location.href = url.toString();
 }
 
-function goToPagePrev() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentPage = parseInt(urlParams.get('page')) || 1;
-    if (currentPage > 1) {
-        const url = new URL(window.location);
-        url.searchParams.set('page', currentPage - 1);
-        window.location.href = url.toString();
-    }
-}
-
-function goToPageNext() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentPage = parseInt(urlParams.get('page')) || 1;
-    const url = new URL(window.location);
-    url.searchParams.set('page', currentPage + 1);
-    window.location.href = url.toString();
-}
-
-function quarantineMedia(mediaId) {
-    currentMediaId = mediaId;
-    const modal = new bootstrap.Modal(document.getElementById('quarantineModal'));
-    modal.show();
-}
-
-function unquarantineMedia(mediaId) {
-    currentMediaId = mediaId;
-    const modal = new bootstrap.Modal(document.getElementById('unquarantineModal'));
-    modal.show();
-}
-
-function deleteMedia(mediaId) {
-    currentMediaId = mediaId;
-    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-    modal.show();
-}
-
-function exportUserMedia() {
-    const userId = '{{ user_id }}';
-    const url = new URL('/users/' + encodeURIComponent(userId) + '/media/export', window.location.origin);
-    
-    // Добавляем текущие фильтры
-    const currentUrl = new URL(window.location);
-    for (const [key, value] of currentUrl.searchParams) {
-        if (['file_type', 'quarantine'].includes(key)) {
-            url.searchParams.set(key, value);
-        }
-    }
-    
-    window.location.href = url.toString();
-}
-
-// Обработчики модальных окон
-document.getElementById('confirmQuarantine').addEventListener('click', function() {
-    if (currentMediaId) {
-        performAction('quarantine', currentMediaId);
-        bootstrap.Modal.getInstance(document.getElementById('quarantineModal')).hide();
-    }
-});
-
-document.getElementById('confirmUnquarantine').addEventListener('click', function() {
-    if (currentMediaId) {
-        performAction('unquarantine', currentMediaId);
-        bootstrap.Modal.getInstance(document.getElementById('unquarantineModal')).hide();
-    }
-});
-
-document.getElementById('confirmDelete').addEventListener('click', function() {
-    if (currentMediaId) {
-        performAction('delete', currentMediaId);
-        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
-    }
-});
-
-function performAction(action, mediaId) {
-    const userId = '{{ user_id }}';
-    let endpoint, method, successMessage;
-    
-    switch (action) {
-        case 'quarantine':
-            endpoint = `/api/users/${userId}/media/${mediaId}/quarantine`;
-            method = 'POST';
-            successMessage = '{{ t("media.quarantine_success") }}';
-            break;
-        case 'unquarantine':
-            endpoint = `/api/users/${userId}/media/${mediaId}/unquarantine`;
-            method = 'POST';
-            successMessage = '{{ t("media.unquarantine_success") }}';
-            break;
-        case 'delete':
-            endpoint = `/api/users/${userId}/media/${mediaId}`;
-            method = 'DELETE';
-            successMessage = '{{ t("media.delete_success") }}';
-            break;
-    }
-    
-    fetch(endpoint, {
-        method: method,
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert(successMessage, 'success');
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showAlert('{{ t("messages.error") }}: ' + data.error, 'danger');
-        }
-    })
-    .catch(error => {
-        showAlert('{{ t("messages.network_error") }}', 'danger');
-    });
-}
-
-function showAlert(message, type) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-' + type + ' alert-dismissible fade show';
-    alertDiv.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
-    
-    document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.container-fluid').firstChild);
-    
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 5000);
-}
-
-// Загрузка фильтров при загрузке страницы
+// Restore filter values from URL on page load
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     
@@ -692,8 +354,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const quarantine = urlParams.get('quarantine');
     if (quarantine) {
-        document.getElementById('quarantineFilter').value = quarantine;
+        document.getElementById('statusFilter').value = quarantine;
+    }
+    
+    const limit = urlParams.get('limit');
+    if (limit) {
+        document.getElementById('limitFilter').value = limit;
     }
 });
 </script>
-{% endblock %} 
+{% endblock %}
+

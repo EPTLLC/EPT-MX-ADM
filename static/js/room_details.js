@@ -1,3 +1,12 @@
+/*
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Room Details JavaScript
+Telegram: https://t.me/EasyProTech
+*/
+
 /**
  * EPT-MX-ADM - Room Details Modal
  * Детальное модальное окно просмотра комнаты с табами

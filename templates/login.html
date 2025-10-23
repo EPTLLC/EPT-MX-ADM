@@ -1,3 +1,11 @@
+{#
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Login Template
+Telegram: https://t.me/EasyProTech
+#}
 <!DOCTYPE html>
 <html lang="{{ current_locale }}">
 <head>
@@ -174,10 +182,19 @@
                 
                 <form method="POST">
                     <div class="mb-3">
-                        <label for="username" class="form-label">
-                            <i class="bi bi-person"></i> {{ t('auth.username') }}
+                        <label for="matrix_server" class="form-label">
+                            <i class="bi bi-server"></i> Matrix Server
                         </label>
-                        <input type="text" class="form-control form-control-lg" id="username" name="username" required autofocus>
+                        <input type="text" class="form-control form-control-lg" id="matrix_server" name="matrix_server" 
+                               placeholder="matrix.example.com" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="bi bi-person"></i> Username
+                        </label>
+                        <input type="text" class="form-control form-control-lg" id="username" name="username" 
+                               placeholder="admin" required autofocus>
                     </div>
                     
                     <div class="mb-4">

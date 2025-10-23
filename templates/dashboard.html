@@ -1,3 +1,11 @@
+{#
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Dashboard Template
+Telegram: https://t.me/EasyProTech
+#}
 {% extends "base.html" %}
 
 {% block title %}{{ t('dashboard.title') }} - {{ t('app.name') }}{% endblock %}
@@ -16,78 +24,168 @@
         </div>
         
         <!-- Информационные карточки -->
-        <div class="info-cards-grid">
+        <div class="row g-4 mb-4">
+            <!-- Total Users Card -->
+            <div class="col-xl-3 col-md-6">
+                <div class="card card-status h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="text-muted mb-1">Total Users</h6>
+                                <h3 class="mb-0">{{ stats.total_users if stats.total_users else '0' }}</h3>
+                                <small class="text-success"><i class="bi bi-check-circle me-1"></i>{{ stats.active_users if stats.active_users else '0' }} active</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Total Rooms Card -->
+            <div class="col-xl-3 col-md-6">
+                <div class="card card-status h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                                    <i class="bi bi-door-open-fill"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="text-muted mb-1">Total Rooms</h6>
+                                <h3 class="mb-0">{{ stats.total_rooms if stats.total_rooms else '0' }}</h3>
+                                <small class="text-muted"><i class="bi bi-hdd me-1"></i>{{ stats.local_rooms if stats.local_rooms else '0' }} local</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- API Response Card -->
+            <div class="col-xl-3 col-md-6">
+                <div class="card card-status h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                                    <i class="bi bi-speedometer2"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="text-muted mb-1">API Response</h6>
+                                <h3 class="mb-0">{{ performance.api_response_time if performance.api_response_time else '0' }}ms</h3>
+                                <small class="text-{{ 'success' if performance.api_response_time and performance.api_response_time < 300 else 'warning' }}">
+                                    <i class="bi bi-{{ 'lightning-fill' if performance.api_response_time and performance.api_response_time < 300 else 'clock' }} me-1"></i>
+                                    {{ 'Fast' if performance.api_response_time and performance.api_response_time < 300 else 'Slow' }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Server Version Card -->
+            <div class="col-xl-3 col-md-6">
+                <div class="card card-status h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                                    <i class="bi bi-server"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="text-muted mb-1">Synapse Version</h6>
+                                <h5 class="mb-0">{{ stats.server_version if stats.server_version else 'N/A' }}</h5>
+                                <small class="text-muted"><i class="bi bi-globe me-1"></i>{{ stats.domain if stats.domain else 'N/A' }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Stats Row -->
+        <div class="row g-4 mb-4">
             <!-- System Status Card -->
-            <div class="card card-status">
-                <div class="card-header">
-                    <i class="bi bi-activity"></i>
-                    <span>System Status</span>
-                </div>
-                <div class="card-body">
-                    <div class="status-indicators">
-                        <div class="status-item">
-                            <div class="status-dot bg-{{ 'success' if health.matrix_api.status == 'healthy' else 'danger' }}"></div>
-                            <span>Matrix API</span>
-                        </div>
-                        <div class="status-item">
-                            <div class="status-dot bg-{{ 'success' if health.users_api.status == 'healthy' else 'danger' }}"></div>
-                            <span>Users API</span>
-                        </div>
-                        <div class="status-item">
-                            <div class="status-dot bg-{{ 'success' if health.rooms_api.status == 'healthy' else 'danger' }}"></div>
-                            <span>Rooms API</span>
+            <div class="col-xl-4">
+                <div class="card card-status h-100">
+                    <div class="card-header border-0">
+                        <h6 class="mb-0"><i class="bi bi-activity me-2"></i>System Status</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="status-indicators">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Matrix API</span>
+                                <span class="badge bg-{{ 'success' if health.matrix_api.status == 'healthy' else 'danger' }}">
+                                    <i class="bi bi-{{ 'check-circle' if health.matrix_api.status == 'healthy' else 'x-circle' }} me-1"></i>
+                                    {{ health.matrix_api.status }}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Users API</span>
+                                <span class="badge bg-{{ 'success' if health.users_api.status == 'healthy' else 'danger' }}">
+                                    <i class="bi bi-{{ 'check-circle' if health.users_api.status == 'healthy' else 'x-circle' }} me-1"></i>
+                                    {{ health.users_api.status }}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Rooms API</span>
+                                <span class="badge bg-{{ 'success' if health.rooms_api.status == 'healthy' else 'danger' }}">
+                                    <i class="bi bi-{{ 'check-circle' if health.rooms_api.status == 'healthy' else 'x-circle' }} me-1"></i>
+                                    {{ health.rooms_api.status }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Statistics Card -->
-            <div class="card card-status">
-                <div class="card-header">
-                    <i class="bi bi-bar-chart"></i>
-                    <span>Statistics</span>
-                </div>
-                <div class="card-body">
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stats.total_users if stats.total_users else '0' }}</div>
-                            <div class="stat-label">Users</div>
+            <!-- User Details Card -->
+            <div class="col-xl-4">
+                <div class="card card-status h-100">
+                    <div class="card-header border-0">
+                        <h6 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>User Details</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Active Users</span>
+                            <span class="fw-bold text-success">{{ stats.active_users if stats.active_users else '0' }}</span>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stats.total_rooms if stats.total_rooms else '0' }}</div>
-                            <div class="stat-label">Rooms</div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Deactivated</span>
+                            <span class="fw-bold text-danger">{{ stats.deactivated_users if stats.deactivated_users else '0' }}</span>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-number success">{{ performance.api_response_time if performance.api_response_time else '0' }}ms</div>
-                            <div class="stat-label">Response</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stats.server_version if stats.server_version else 'N/A' }}</div>
-                            <div class="stat-label">Version</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Total</span>
+                            <span class="fw-bold text-primary">{{ stats.total_users if stats.total_users else '0' }}</span>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Server Information Card -->
-            <div class="card card-status">
-                <div class="card-header">
-                    <i class="bi bi-server"></i>
-                    <span>Server Info</span>
-                </div>
-                <div class="card-body">
-                    <div class="server-info">
-                        <div class="info-row">
-                            <span class="info-label">Domain:</span>
-                            <span class="info-value">{{ stats.domain if stats.domain else 'N/A' }}</span>
+            <!-- Storage Info Card -->
+            <div class="col-xl-4">
+                <div class="card card-status h-100">
+                    <div class="card-header border-0">
+                        <h6 class="mb-0"><i class="bi bi-hdd-stack me-2"></i>Storage Info</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Media Storage</span>
+                            <span class="fw-bold">{{ stats.media_size_human if stats.media_size_human else 'N/A' }}</span>
                         </div>
-                        <div class="info-row">
-                            <span class="info-label">Python:</span>
-                            <span class="info-value">{{ stats.python_version if stats.python_version and stats.python_version != 'Unknown' else 'N/A' }}</span>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Total Rooms</span>
+                            <span class="fw-bold">{{ stats.total_rooms if stats.total_rooms else '0' }}</span>
                         </div>
-                        <div class="info-row">
-                            <span class="info-label">Health:</span>
-                            <span class="info-value primary">{{ health.overall_status if health.overall_status else 'healthy' }}</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Python Ver</span>
+                            <span class="fw-bold">{{ stats.python_version if stats.python_version and stats.python_version != 'Unknown' else 'N/A' }}</span>
                         </div>
                     </div>
                 </div>

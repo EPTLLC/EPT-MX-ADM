@@ -1,4 +1,11 @@
 """
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Users Management Blueprint
+Telegram: https://t.me/EasyProTech
+
 Users Management Blueprint for EPT-MX-ADM
 """
 
@@ -15,6 +22,19 @@ users_bp = Blueprint('users', __name__)
 # Create managers
 auth_manager = AuthManager()
 logger = get_logger()
+
+
+def _format_bytes(bytes_size):
+    """Format bytes to human readable format"""
+    try:
+        bytes_size = int(bytes_size)
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if bytes_size < 1024.0:
+                return f"{bytes_size:.1f} {unit}"
+            bytes_size /= 1024.0
+        return f"{bytes_size:.1f} PB"
+    except:
+        return '0 B'
 
 
 def _protect_main_admin(user_id):
@@ -35,7 +55,6 @@ def users():
         
         # Search and pagination parameters
         search = request.args.get('search', '')
-        from_token = request.args.get('from', '')
         limit = request.args.get('limit', 10, type=int)  # Items per page
         page = request.args.get('page', 1, type=int)
         
@@ -43,12 +62,13 @@ def users():
         show_guests = request.args.get('guests') == 'true'
         show_deactivated = request.args.get('deactivated') == 'true'
         
-        # Calculate offset for pagination
-        offset = (page - 1) * limit if page > 1 else 0
+        # Calculate offset for Matrix API pagination (from token)
+        # Matrix API uses 'from' as offset: page 1 = from 0, page 2 = from limit, page 3 = from limit*2, etc.
+        from_offset = (page - 1) * limit
         
         # Get users list
         users_data = user_manager.get_users_list(
-            from_token=from_token if from_token else None,
+            from_token=str(from_offset) if from_offset > 0 else None,
             limit=limit,
             search_term=search if search else None,
             guests=show_guests if request.args.get('guests') else None,
@@ -61,9 +81,43 @@ def users():
         # Скрываем главного админа для всех, кроме него самого
         main_admin_id = f"@admin:{Config.DOMAIN}"
         current_user_id = session.get('user_id')
+        original_total = users_data.get('total', 0)  # Save original total BEFORE filtering
+        
         if current_user_id != main_admin_id:
+            # Filter out main admin from the current page
             users_data['users'] = [u for u in users_data['users'] if u.get('name') != main_admin_id]
-            users_data['total'] = len(users_data['users'])
+            # Decrease total by 1 if main admin exists in the system
+            if original_total > 0:
+                users_data['total'] = original_total - 1
+        
+        # Get media statistics for all users
+        users_media_map = {}
+        try:
+            media_response = api_client.get('/v1/statistics/users/media')
+            if media_response and media_response.status_code == 200:
+                media_data = media_response.json()
+                users_media_list = media_data.get('users', [])
+                # Create a map of user_id -> media stats
+                for user_media in users_media_list:
+                    user_id = user_media.get('user_id')
+                    users_media_map[user_id] = {
+                        'media_count': user_media.get('media_count', 0),
+                        'media_length': user_media.get('media_length', 0)
+                    }
+        except Exception as e:
+            logger.debug(f"Could not fetch media stats: {str(e)}")
+        
+        # Attach media info to each user
+        for user in users_data.get('users', []):
+            user_id = user.get('name')
+            if user_id in users_media_map:
+                user['media_count'] = users_media_map[user_id]['media_count']
+                user['media_size'] = users_media_map[user_id]['media_length']
+                user['media_size_human'] = _format_bytes(users_media_map[user_id]['media_length'])
+            else:
+                user['media_count'] = 0
+                user['media_size'] = 0
+                user['media_size_human'] = '0 B'
         
         # Calculate pagination info
         total_users = users_data.get('total', 0)
@@ -78,8 +132,7 @@ def users():
                              next_token=users_data.get('next_token') if users_data else None,
                              search=search,
                              show_guests=show_guests,
-                             show_deactivated=show_deactivated,
-                             from_token=from_token)
+                             show_deactivated=show_deactivated)
     
     except Exception as e:
         logger.error(f"Users loading error: {str(e)}")
@@ -91,10 +144,9 @@ def users():
                              total_pages=1,
                              limit=10,
                              next_token=None,
-                             search=search,
+                             search='',
                              show_guests=False,
-                             show_deactivated=False,
-                             from_token=from_token)
+                             show_deactivated=False)
 
 
 @users_bp.route('/users/create', methods=['GET', 'POST'])
@@ -435,34 +487,8 @@ def user_details(user_id):
         return redirect(url_for('users.users'))
 
 
-@users_bp.route('/users/<user_id>/media')
-@admin_required
-def user_media(user_id):
-    """Show user media"""
-    protect = _protect_main_admin(user_id)
-    if protect: return protect
-    try:
-        api_client = auth_manager.get_api_client()
-        user_manager = UserManager(api_client)
-        
-        # Pagination parameters
-        from_token = request.args.get('from', '')
-        limit = request.args.get('limit', 20, type=int)
-        
-        media_data = user_manager.get_user_media(user_id, from_token if from_token else None, limit)
-        
-        if not media_data:
-            media_data = {'media': [], 'total': 0}
-        
-        return render_template('user_media.html',
-                             user_id=user_id,
-                             media_data=media_data,  # Fixed: use media_data instead of media
-                             from_token=from_token)
-    
-    except Exception as e:
-        logger.error(f"User media error: {str(e)}")
-        flash('Error loading user media', 'danger')
-        return redirect(url_for('users.users'))
+# Route moved to media.py to avoid conflicts
+# @users_bp.route('/users/<user_id>/media')
 
 
 @users_bp.route('/users/<user_id>/media/<media_id>/delete', methods=['POST'])

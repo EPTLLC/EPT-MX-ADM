@@ -1,3 +1,12 @@
+/*
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Main Stylesheet
+Telegram: https://t.me/EasyProTech
+*/
+
 /* EPT-MX-ADM - Unified Design System */
 
 /* ==========================================================================
@@ -256,8 +265,8 @@ body {
 .rooms-grid,
 .spaces-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing);
 }
 
 
@@ -1189,3 +1198,32 @@ footer.glass-effect {
     text-decoration: underline;
 }
 
+
+/* ==========================================================================
+   DASHBOARD STAT ICONS
+   ========================================================================== */
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 28px;
+}
+
+.card-status .card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+}
+
+.card-status .card-body {
+    padding: 1.5rem 1.25rem;
+}
+
+[data-bs-theme="dark"] .card-status .card-header {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}

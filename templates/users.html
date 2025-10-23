@@ -1,3 +1,11 @@
+{#
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Users Template
+Telegram: https://t.me/EasyProTech
+#}
 {% extends "base.html" %}
 
 {% block title %}{{ t('users.title') }} - {{ t('app.name') }}{% endblock %}
@@ -124,6 +132,15 @@
                     <i class="bi bi-calendar-plus"></i> {{ user.creation_ts | datetime_format }}
                 </div>
                 {% endif %}
+                
+                <!-- Media Storage Info -->
+                {% if user.media_count is defined %}
+                <div class="text-muted small">
+                    <i class="bi bi-hdd me-1"></i>
+                    <strong>{{ user.media_size_human }}</strong>
+                    <span class="ms-1">({{ user.media_count }} files)</span>
+                </div>
+                {% endif %}
             </div>
             <div class="card-footer d-flex gap-2 justify-content-end">
                 <a href="{{ url_for('users.edit_user', user_id=user.name) }}" 
@@ -176,13 +193,68 @@
     
     <!-- Пагинация -->
     {% if total > 0 %}
-    <div class="pagination-info">
+    <div class="d-flex justify-content-between align-items-center mt-4">
         <div class="pagination-text">
             {{ t('pagination.showing') }} 
             {{ ((current_page - 1) * limit + 1) if users else 0 }} - 
             {{ (current_page * limit) if (current_page * limit) < total else total }} 
             {{ t('pagination.of') }} {{ total }} {{ t('pagination.entries') }}
         </div>
+        
+        {% if total_pages > 1 %}
+        <nav aria-label="Users pagination">
+            <ul class="pagination mb-0">
+                {% if current_page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="goToPage(1)">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="goToPagePrev()">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% set start_page = [1, current_page - 2] | max %}
+                {% set end_page = [total_pages, current_page + 2] | min %}
+                
+                {% if start_page > 1 %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+                
+                {% for page_num in range(start_page, end_page + 1) %}
+                <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                    <a class="page-link" href="#" onclick="goToPage({{ page_num }})">
+                        {{ page_num }}
+                    </a>
+                </li>
+                {% endfor %}
+                
+                {% if end_page < total_pages %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+                
+                {% if current_page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="goToPageNext()">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="goToPageLast()">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
     {% endif %}
 </div>
@@ -505,5 +577,32 @@ document.addEventListener('DOMContentLoaded', function() {
         fallbackPlacements: ['right', 'bottom', 'top']
     }));
 });
+
+// Pagination functions
+function goToPage(page) {
+    const url = new URL(window.location);
+    url.searchParams.set('page', page);
+    window.location.href = url.toString();
+}
+
+function goToPagePrev() {
+    const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+    if (currentPage > 1) {
+        goToPage(currentPage - 1);
+    }
+}
+
+function goToPageNext() {
+    const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+    const totalPages = {{ total_pages }};
+    if (currentPage < totalPages) {
+        goToPage(currentPage + 1);
+    }
+}
+
+function goToPageLast() {
+    const totalPages = {{ total_pages }};
+    goToPage(totalPages);
+}
 </script>
 {% endblock %} 

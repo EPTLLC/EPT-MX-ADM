@@ -1,4 +1,11 @@
 """
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Rooms Management Module
+Telegram: https://t.me/EasyProTech
+
 Rooms management module for EPT-MX-ADM
 Basic room management functionality
 """

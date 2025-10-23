@@ -1,4 +1,11 @@
 """
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Analytics Module
+Telegram: https://t.me/EasyProTech
+
 Analytics module for EPT-MX-ADM
 Complete analytics functionality with Matrix health monitoring
 """
@@ -22,26 +29,40 @@ class AnalyticsManager:
             stats = {
                 'total_users': 0,
                 'active_users': 0,
+                'deactivated_users': 0,
                 'total_rooms': 0,
                 'local_rooms': 0,
                 'remote_rooms': 0,
                 'server_version': 'Unknown',
                 'domain': 'Unknown',
-                'python_version': 'Unknown'
+                'python_version': 'Unknown',
+                'media_count': 0,
+                'media_size': 0,
+                'media_size_human': 'N/A'
             }
             
             # Get users statistics
             try:
-                users_response = self.api_client.get('/v2/users', params={'limit': 1})
-                if users_response and users_response.status_code == 200:
-                    users_data = users_response.json()
-                    stats['total_users'] = users_data.get('total', 0)
+                # Get ALL users including deactivated (no filter = only active, deactivated=true = all)
+                # Synapse API quirk: need to request with deactivated=true to get both active and deactivated
+                all_response = self.api_client.get('/v2/users', params={'limit': 10000, 'deactivated': 'true'})
+                if all_response and all_response.status_code == 200:
+                    all_data = all_response.json()
+                    all_users = all_data.get('users', [])
                     
-                # Get active users (non-deactivated)
-                active_response = self.api_client.get('/v2/users', params={'limit': 1, 'deactivated': 'false'})
-                if active_response and active_response.status_code == 200:
-                    active_data = active_response.json()
-                    stats['active_users'] = active_data.get('total', 0)
+                    # Use API total if available, otherwise count manually
+                    stats['total_users'] = all_data.get('total', len(all_users))
+                    
+                    # Count active (not deactivated)
+                    stats['active_users'] = sum(1 for u in all_users if not u.get('deactivated', False))
+                    
+                    # Count deactivated
+                    stats['deactivated_users'] = sum(1 for u in all_users if u.get('deactivated', False))
+                    
+                    logger.info(f"Users stats - Total: {stats['total_users']}, Active: {stats['active_users']}, Deactivated: {stats['deactivated_users']}")
+                else:
+                    logger.error(f"Failed to get users: {all_response.status_code if all_response else 'No response'}")
+                    
             except Exception as e:
                 logger.error(f"Error getting user stats: {str(e)}")
             
@@ -65,6 +86,25 @@ class AnalyticsManager:
                         stats['remote_rooms'] = remote_count
             except Exception as e:
                 logger.error(f"Error getting room stats: {str(e)}")
+            
+            # Get media statistics (total storage used by all users)
+            try:
+                media_response = self.api_client.get('/v1/statistics/users/media')
+                if media_response and media_response.status_code == 200:
+                    media_data = media_response.json()
+                    users_media = media_data.get('users', [])
+                    
+                    # Sum all users' media sizes
+                    total_size = sum(user.get('media_length', 0) for user in users_media)
+                    total_count = sum(user.get('media_count', 0) for user in users_media)
+                    
+                    stats['media_count'] = total_count
+                    stats['media_size'] = total_size
+                    stats['media_size_human'] = self._format_bytes(total_size)
+                    
+                    logger.info(f"Media stats - Total files: {total_count}, Total size: {stats['media_size_human']}")
+            except Exception as e:
+                logger.debug(f"Media stats not available: {str(e)}")
             
             # Get server version
             try:
@@ -98,6 +138,18 @@ class AnalyticsManager:
         except Exception as e:
             logger.error(f"Error getting dashboard stats: {str(e)}")
             return {}
+    
+    def _format_bytes(self, bytes_size):
+        """Format bytes to human readable format"""
+        try:
+            bytes_size = int(bytes_size)
+            for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+                if bytes_size < 1024.0:
+                    return f"{bytes_size:.1f} {unit}"
+                bytes_size /= 1024.0
+            return f"{bytes_size:.1f} PB"
+        except:
+            return 'N/A'
     
     def get_server_performance(self):
         """Get server performance metrics"""

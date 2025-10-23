@@ -1,3 +1,11 @@
+{#
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Rooms Template
+Telegram: https://t.me/EasyProTech
+#}
 {% extends "base.html" %}
 
 {% block title %}{{ t('rooms.title') }}{% endblock %}
@@ -195,19 +203,27 @@
     {% endif %}
     
     <!-- Пагинация -->
-    {% if total > limit %}
-    <div class="pagination-section">
-        <nav aria-label="Pagination">
-            <ul class="pagination justify-content-center">
+    {% if total > 0 %}
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <div class="pagination-text">
+            {{ t('pagination.showing') }} 
+            {{ ((current_page - 1) * limit + 1) if total > 0 else 0 }} - 
+            {{ (current_page * limit) if (current_page * limit) < total else total }} 
+            {{ t('pagination.of') }} {{ total }} {{ t('pagination.entries') }}
+        </div>
+        
+        {% if total_pages > 1 %}
+        <nav aria-label="Rooms pagination">
+            <ul class="pagination mb-0">
                 {% if current_page > 1 %}
                 <li class="page-item">
                     <a class="page-link" href="#" onclick="goToPage(1)">
-                        <i class="bi bi-chevron-double-left me-1"></i>{{ t('pagination.first') }}
+                        <i class="bi bi-chevron-double-left"></i>
                     </a>
                 </li>
                 <li class="page-item">
                     <a class="page-link" href="#" onclick="goToPagePrev()">
-                        <i class="bi bi-chevron-left me-1"></i>{{ t('pagination.previous') }}
+                        <i class="bi bi-chevron-left"></i>
                     </a>
                 </li>
                 {% endif %}
@@ -223,7 +239,9 @@
                 
                 {% for page_num in range(start_page, end_page + 1) %}
                 <li class="page-item {% if page_num == current_page %}active{% endif %}">
-                    <a class="page-link" href="#" data-page="{{ page_num }}" onclick="goToPage(this.dataset.page)">{{ page_num }}</a>
+                    <a class="page-link" href="#" onclick="goToPage({{ page_num }})">
+                        {{ page_num }}
+                    </a>
                 </li>
                 {% endfor %}
                 
@@ -236,17 +254,18 @@
                 {% if current_page < total_pages %}
                 <li class="page-item">
                     <a class="page-link" href="#" onclick="goToPageNext()">
-                        {{ t('pagination.next') }}<i class="bi bi-chevron-right ms-1"></i>
+                        <i class="bi bi-chevron-right"></i>
                     </a>
                 </li>
                 <li class="page-item">
                     <a class="page-link" href="#" onclick="goToPageLast()">
-                        {{ t('pagination.last') }}<i class="bi bi-chevron-double-right ms-1"></i>
+                        <i class="bi bi-chevron-double-right"></i>
                     </a>
                 </li>
                 {% endif %}
             </ul>
         </nav>
+        {% endif %}
     </div>
     {% endif %}
 </div>
@@ -342,12 +361,15 @@ function goToPagePrev() {
 
 function goToPageNext() {
     const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
-    goToPage(currentPage + 1);
+    const totalPages = {{ total_pages }};
+    if (currentPage < totalPages) {
+        goToPage(currentPage + 1);
+    }
 }
 
 function goToPageLast() {
-    // This would need to be implemented based on total pages
-    console.log('Go to last page');
+    const totalPages = {{ total_pages }};
+    goToPage(totalPages);
 }
 
 function viewRoom(roomId) {

@@ -1,4 +1,11 @@
 """
+Project: EPT-MX-ADM
+Company: EasyProTech LLC (www.easypro.tech)
+Dev: Brabus
+Date: Thu 23 Oct 2025 22:56:11 UTC
+Status: Configuration Settings
+Telegram: https://t.me/EasyProTech
+
 EPT-MX-ADM Configuration
 Ultra-simple setup: just edit config.json with your Matrix server!
 """
@@ -11,7 +18,7 @@ class Config:
     
     # Application info
     APP_NAME = "EPT-MX-ADM"
-    APP_VERSION = "v0.0.1-beta"
+    APP_VERSION = "v1.0.0"
     
     # Load configuration from config.json
     @staticmethod
