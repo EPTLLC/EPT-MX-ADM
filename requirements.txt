@@ -1,4 +1,4 @@
-Flask==3.1.1
+Flask==3.1.2
 Flask-WTF==1.2.2
 requests==2.32.4
 Werkzeug==3.1.3
