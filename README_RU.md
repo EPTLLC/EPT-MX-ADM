@@ -3,7 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/ept-mx-adm.svg)](https://badge.fury.io/py/ept-mx-adm)
 [![Python](https://img.shields.io/pypi/pyversions/ept-mx-adm.svg)](https://pypi.org/project/ept-mx-adm/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Downloads](https://pepy.tech/badge/ept-mx-adm)](https://pepy.tech/project/ept-mx-adm)
+[![Downloads](https://img.shields.io/pypi/dm/ept-mx-adm)](https://pypi.org/project/ept-mx-adm/)
 
 ```
   _____ ____ _____     __  ____   __      _    ____  __  __ 
