@@ -1,6 +1,6 @@
 # EPT-MX-ADM v1.0.1
 
-[![PyPI version](https://badge.fury.io/py/ept-mx-adm.svg)](https://badge.fury.io/py/ept-mx-adm)
+[![PyPI version](https://img.shields.io/pypi/v/ept-mx-adm)](https://pypi.org/project/ept-mx-adm/)
 [![Python](https://img.shields.io/pypi/pyversions/ept-mx-adm.svg)](https://pypi.org/project/ept-mx-adm/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Downloads](https://img.shields.io/pypi/dm/ept-mx-adm)](https://pypi.org/project/ept-mx-adm/)
