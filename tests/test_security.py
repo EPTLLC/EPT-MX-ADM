@@ -78,7 +78,7 @@ class TestCSRFProtection:
     def test_csrf_token_required_for_post(self):
         """POST requests should require CSRF token in production"""
         # Create a separate app instance with CSRF enabled for this test
-        os.environ['FLASK_SECRET_KEY'] = 'test-secret-key-for-csrf-testing-minimum-32-chars'
+        os.environ['FLASK_SECRET_KEY'] = 'test-secret-key-for-csrf-testing-minimum-32-chars'  # pragma: allowlist secret
         os.environ['EPT_DISABLE_SSL_VERIFY'] = 'true'
         
         from app import create_app
@@ -92,7 +92,7 @@ class TestCSRFProtection:
         # Try to POST without CSRF token
         response = client.post('/login', data={
             'username': 'test',
-            'password': 'test',
+            'password': 'test',  # pragma: allowlist secret
             'matrix_server': 'matrix.example.com'
         }, follow_redirects=False)
         
@@ -118,7 +118,7 @@ class TestRateLimiting:
         for i in range(6):  # More than 5 allowed
             response = client.post('/login', data={
                 'username': f'user{i}',
-                'password': 'password'
+                'password': 'password'  # pragma: allowlist secret
             })
         
         # Last request should be rate limited (429)
@@ -131,8 +131,15 @@ class TestSessionSecurity:
     """Test session security configuration"""
     
     def test_session_cookie_secure(self, app):
-        """Session cookies should be marked as secure"""
-        assert app.config.get('SESSION_COOKIE_SECURE') is True, "SESSION_COOKIE_SECURE should be True"
+        """Session cookies should be marked as secure in production"""
+        # In development mode (DEBUG=True), SESSION_COOKIE_SECURE is False to allow HTTP
+        # In production, it should be True for HTTPS
+        if app.config.get('DEBUG'):
+            assert app.config.get('SESSION_COOKIE_SECURE') is False, \
+                "SESSION_COOKIE_SECURE should be False in DEBUG mode"
+        else:
+            assert app.config.get('SESSION_COOKIE_SECURE') is True, \
+                "SESSION_COOKIE_SECURE should be True in production"
     
     def test_session_cookie_httponly(self, app):
         """Session cookies should be HTTPOnly"""
@@ -234,7 +241,7 @@ class TestLogging:
         """Failed login attempts should be logged"""
         client.post('/login', data={
             'username': 'testuser',
-            'password': 'wrongpassword',
+            'password': 'wrongpassword',  # pragma: allowlist secret
             'matrix_server': 'matrix.example.com'
         })
         
