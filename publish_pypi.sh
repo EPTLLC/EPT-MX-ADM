@@ -11,6 +11,16 @@
 echo "Publishing EPT-MX-ADM to PyPI"
 echo "================================"
 
+# Check for .pypirc file
+if [ ! -f ~/.pypirc ] && [ ! -f .pypirc ]; then
+    echo "ERROR: .pypirc not found!"
+    echo "Create .pypirc from .pypirc.example template"
+    echo "See: https://packaging.python.org/en/latest/specifications/pypirc/"
+    exit 1
+fi
+echo "✓ PyPI credentials found"
+echo ""
+
 # Clean previous builds
 echo "Cleaning previous builds..."
 rm -rf build/ dist/ *.egg-info

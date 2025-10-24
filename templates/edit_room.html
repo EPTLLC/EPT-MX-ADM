@@ -28,6 +28,7 @@ Telegram: https://t.me/EasyProTech
             </div>
             <div class="card-body">
                 <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>>
                     <div class="mb-3">
                         <label class="form-label">
                             <i class="bi bi-house-door"></i> {{ t('rooms.room_id') }}

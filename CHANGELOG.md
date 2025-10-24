@@ -4,6 +4,166 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.0.1] - 2025-10-24
+
+### SECURITY UPDATE - Critical Fixes
+
+This release addresses critical security vulnerabilities and implements comprehensive security improvements.
+
+### Critical Security Fixes
+
+**SSL Verification**
+- [SECURITY] Fixed SSL verification disabled globally
+- Added EPT_DISABLE_SSL_VERIFY environment variable (default: false)
+- Added EPT_CA_BUNDLE support for custom CA certificates
+- SSL verification now enabled by default for production security
+- Warning logs when SSL verification is disabled
+- All requests.* calls now use configurable SSL_VERIFY
+
+**CSRF Protection**
+- [SECURITY] Implemented Flask-WTF CSRFProtect
+- CSRF tokens required for all POST/PUT/DELETE/PATCH requests
+- WTF_CSRF_ENABLED=True by default
+- SESSION_COOKIE_SAMESITE='Lax' for additional CSRF protection
+
+**Rate Limiting**
+- [SECURITY] Implemented Flask-Limiter for brute-force protection
+- Login endpoint limited to 5 attempts per minute
+- Global limits: 200 requests/day, 50 requests/hour per IP
+- Failed login attempts logged with IP and username
+
+**Session Security**
+- [SECURITY] FLASK_SECRET_KEY now required from environment variable
+- Minimum 32 characters enforced for SECRET_KEY
+- SESSION_COOKIE_SECURE=True (HTTPS only)
+- SESSION_COOKIE_HTTPONLY=True (no JavaScript access)
+- SESSION_COOKIE_SAMESITE='Lax' (CSRF protection)
+- PERMANENT_SESSION_LIFETIME=3600 (1 hour)
+- Application fails fast if SECRET_KEY not configured properly
+
+**Secret Scanning**
+- [SECURITY] Removed .pypirc file with PyPI token from repository
+- Created .pypirc.example template for users
+- Added .secrets.baseline for detect-secrets
+- Implemented pre-commit hook for secret detection
+- Updated publish_pypi.sh to check for .pypirc before publishing
+
+### Security Improvements
+
+**Dependency Updates**
+- Flask: 2.3.3 → 3.1.1 (18 vulnerabilities fixed)
+- requests: 2.31.0 → 2.32.4
+- Werkzeug: 2.3.7 → 3.1.3
+- Jinja2: 3.1.2 → 3.1.6
+- gunicorn: 21.2.0 → 23.0.0
+- urllib3: 2.0.4 → 2.5.0
+- certifi: 2023.7.22 → 2024.8.30
+- psutil: 5.9.5 → 6.1.1
+- Added Flask-WTF 1.2.2 for CSRF protection
+- Added Flask-Limiter 3.8.0 for rate limiting
+
+**Security Headers**
+- X-Frame-Options: SAMEORIGIN (clickjacking protection)
+- X-Content-Type-Options: nosniff (MIME type sniffing protection)
+- X-XSS-Protection: 1; mode=block (XSS filter)
+- Content-Security-Policy (CSP) implemented
+- Referrer-Policy: strict-origin-when-cross-origin
+- Permissions-Policy: geolocation=(), microphone=(), camera=()
+- Strict-Transport-Security (HSTS) when using HTTPS
+
+**Logging & Audit**
+- Login attempts logged with IP address and username
+- Successful logins logged
+- Failed login attempts logged as warnings
+- Admin actions ready for audit logging (core/security.py)
+- No passwords or tokens in logs
+
+### Development & CI/CD
+
+**GitHub Actions CI**
+- Created security-quality.yml workflow
+- Security scanning: Bandit, pip-audit, detect-secrets
+- Code quality checks: Flake8
+- Multi-version testing: Python 3.10, 3.11, 3.12
+- Build checks: Package building and validation
+- Automated artifact uploads
+
+**Dependabot**
+- Enabled Dependabot for automatic dependency updates
+- Weekly checks for Python packages and GitHub Actions
+- Auto-PR creation with security labels
+
+**Docker Support**
+- Created Dockerfile with multi-stage build support
+- Created docker-compose.yml (Admin Panel + Synapse + PostgreSQL)
+- Non-root user execution (matrix-admin:1000)
+- Health checks for all services
+- Created .dockerignore for optimized builds
+- Created DOCKER.md with comprehensive documentation
+
+### Security Documentation
+
+**SECURITY.md**
+- Created comprehensive security policy
+- Documented known security considerations
+- Best practices for deployment
+- Security scanning instructions
+- Manual security review checklist
+- Disclaimer and no-support policy
+
+**Configuration**
+- .bandit configuration for security linting
+- .flake8 configuration updated
+- .gitignore updated with security artifacts
+- pre-commit hook for secret detection
+
+### Code Quality
+
+**Static Analysis**
+- Bandit security linting configured
+- Flake8 code quality checks
+- 742 code quality issues identified (mostly whitespace)
+- Critical security issues addressed
+
+**Security Middleware**
+- Created core/security.py module
+- require_auth decorator for authentication
+- require_admin decorator for admin privileges
+- add_security_headers function
+- sanitize_input for XSS prevention
+- validate_matrix_id for input validation
+- log_admin_action for audit trail
+- rate_limit_check placeholder for Redis integration
+
+### Breaking Changes
+
+- FLASK_SECRET_KEY environment variable is now REQUIRED
+- Application will fail to start without proper SECRET_KEY
+- SSL verification is now enabled by default (use EPT_DISABLE_SSL_VERIFY=true for development)
+- SESSION_COOKIE_SECURE requires HTTPS in production
+
+### Migration Guide
+
+1. Set environment variables:
+   ```bash
+   export FLASK_SECRET_KEY=$(openssl rand -hex 32)
+   export EPT_DISABLE_SSL_VERIFY=false  # or true for dev with self-signed certs
+   ```
+
+2. Update deployment to use HTTPS (required for secure cookies)
+
+3. If using self-signed certificates in production:
+   ```bash
+   export EPT_CA_BUNDLE=/path/to/ca-bundle.crt
+   ```
+
+4. Install new dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+---
+
 ## [1.0.0] - 2025-10-23
 
 ### Major Release - Production Ready

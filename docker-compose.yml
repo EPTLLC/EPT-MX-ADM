@@ -1,0 +1,88 @@
+# Project: EPT-MX-ADM
+# Company: EasyProTech LLC (www.easypro.tech)
+# Dev: Brabus
+# Date: Fri 24 Oct 2025 UTC
+# Status: Created
+# Telegram: https://t.me/EasyProTech
+
+version: '3.8'
+
+services:
+  # PostgreSQL database for Synapse
+  postgres:
+    image: postgres:15-alpine
+    container_name: ept-mx-postgres
+    environment:
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: synapse_password
+      POSTGRES_DB: synapse
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - matrix-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U synapse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Matrix Synapse server
+  synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: ept-mx-synapse
+    environment:
+      SYNAPSE_SERVER_NAME: localhost
+      SYNAPSE_REPORT_STATS: "no"
+    volumes:
+      - ./docker/synapse:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8008:8008"
+      - "8448:8448"
+    networks:
+      - matrix-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # EPT-MX-ADM Admin Panel
+  admin-panel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ept-mx-admin
+    environment:
+      SYNAPSE_URL: "http://synapse:8008"
+      FLASK_ENV: development
+      DEBUG: "false"
+    volumes:
+      - ./config.json:/app/config.json
+      - ./logs:/app/logs
+    depends_on:
+      synapse:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    networks:
+      - matrix-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  matrix-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+

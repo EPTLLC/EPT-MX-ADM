@@ -20,7 +20,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="ept-mx-adm",
-    version="1.0.0",
+    version="1.0.1",
     author="Brabus (EasyProTech LLC)",
     author_email="support@easypro.tech",
     description="Web-Based Administration Panel for Matrix Synapse Server",

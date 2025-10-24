@@ -1,4 +1,4 @@
-# EPT-MX-ADM v1.0.0
+# EPT-MX-ADM v1.0.1
 
 [![PyPI version](https://badge.fury.io/py/ept-mx-adm.svg)](https://badge.fury.io/py/ept-mx-adm)
 [![Python](https://img.shields.io/pypi/pyversions/ept-mx-adm.svg)](https://pypi.org/project/ept-mx-adm/)
@@ -16,6 +16,8 @@
 **Web-Based Administration Panel for Matrix Synapse Server**
 
 Universal admin tool that works with ANY Matrix server - local, remote, cloud, or self-hosted. Just admin credentials needed.
+
+![Login Page with Security Features](screenshots/login_security.png)
 
 ---
 

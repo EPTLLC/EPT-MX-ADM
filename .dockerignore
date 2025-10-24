@@ -1,0 +1,58 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv
+.env
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov/
+*.coverage
+.tox/
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Project specific
+logs/*.log
+*.log
+.secrets.baseline
+.pypirc
+.pypirc.example
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+*.md
+!README.md
+screen/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+debug.log
+

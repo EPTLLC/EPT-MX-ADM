@@ -181,6 +181,21 @@ Telegram: https://t.me/EasyProTech
                 </div>
                 
                 <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    
+                    <!-- Security Indicators -->
+                    <div class="mb-3 d-flex gap-2 justify-content-center">
+                        <span class="badge bg-success">
+                            <i class="bi bi-shield-check"></i> CSRF Protected
+                        </span>
+                        <span class="badge bg-success">
+                            <i class="bi bi-shield-lock"></i> Rate Limited
+                        </span>
+                        <span class="badge bg-success">
+                            <i class="bi bi-shield-fill-check"></i> Encrypted
+                        </span>
+                    </div>
+                    
                     <div class="mb-3">
                         <label for="matrix_server" class="form-label">
                             <i class="bi bi-server"></i> Matrix Server

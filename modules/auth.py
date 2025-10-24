@@ -14,15 +14,29 @@ from flask import session, request, redirect, url_for, flash
 from functools import wraps
 import requests
 import json
+import os
 from config.settings import Config
 from utils.logger import get_logger
 from utils.i18n import t
 
-# Disable SSL warnings for self-signed certificates
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+# SSL verification control
+# Set EPT_DISABLE_SSL_VERIFY=true ONLY for development with self-signed certificates
+# NEVER disable in production!
+SSL_VERIFY = os.environ.get('EPT_DISABLE_SSL_VERIFY', 'false').lower() != 'true'
+CA_BUNDLE = os.environ.get('EPT_CA_BUNDLE', None)
+
+if CA_BUNDLE:
+    SSL_VERIFY = CA_BUNDLE
+    
+if not SSL_VERIFY:
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = get_logger()
+
+if not SSL_VERIFY:
+    logger.warning("⚠️  SSL VERIFICATION DISABLED - This is insecure and should only be used in development!")
+    logger.warning("⚠️  Set EPT_DISABLE_SSL_VERIFY=false or provide EPT_CA_BUNDLE for production")
 
 
 class AuthManager:
@@ -79,12 +93,12 @@ class AuthManager:
                 'password': password
             }
             
-            # Make login request (disable SSL verification for self-signed certs)
+            # Make login request with SSL verification
             response = requests.post(
                 f"{server_url}/_matrix/client/r0/login",
                 json=login_data,
                 timeout=10,
-                verify=False  # Disable SSL verification
+                verify=SSL_VERIFY
             )
             
             if response.status_code == 200:
@@ -136,7 +150,7 @@ class AuthManager:
                 f"{server}/_synapse/admin/v1/users/{user_id}/admin",
                 headers=headers,
                 timeout=10,
-                verify=False  # Disable SSL verification
+                verify=SSL_VERIFY  # Disable SSL verification
             )
             
             if response.status_code == 200:
@@ -176,7 +190,7 @@ class SynapseAPIClient:
         url = f"{self.admin_url}{endpoint}"
         
         try:
-            response = requests.get(url, headers=headers, params=params, timeout=10, verify=False)
+            response = requests.get(url, headers=headers, params=params, timeout=10, verify=SSL_VERIFY)
             return response
         except Exception as e:
             logger.error(f"API GET error: {str(e)}")
@@ -191,7 +205,7 @@ class SynapseAPIClient:
         url = f"{self.admin_url}{endpoint}"
         
         try:
-            response = requests.post(url, headers=headers, json=data, timeout=10, verify=False)
+            response = requests.post(url, headers=headers, json=data, timeout=10, verify=SSL_VERIFY)
             return response
         except Exception as e:
             logger.error(f"API POST error: {str(e)}")
@@ -206,7 +220,7 @@ class SynapseAPIClient:
         url = f"{self.admin_url}{endpoint}"
         
         try:
-            response = requests.put(url, headers=headers, json=data, timeout=10, verify=False)
+            response = requests.put(url, headers=headers, json=data, timeout=10, verify=SSL_VERIFY)
             return response
         except Exception as e:
             logger.error(f"API PUT error: {str(e)}")
@@ -220,7 +234,7 @@ class SynapseAPIClient:
         url = f"{self.admin_url}{endpoint}"
         
         try:
-            response = requests.delete(url, headers=headers, json=json, timeout=10, verify=False, **kwargs)
+            response = requests.delete(url, headers=headers, json=json, timeout=10, verify=SSL_VERIFY, **kwargs)
             return response
         except Exception as e:
             logger.error(f"API DELETE error: {str(e)}")

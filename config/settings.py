@@ -18,7 +18,7 @@ class Config:
     
     # Application info
     APP_NAME = "EPT-MX-ADM"
-    APP_VERSION = "v1.0.0"
+    APP_VERSION = "v1.0.1"
     
     # Load configuration from config.json
     @staticmethod

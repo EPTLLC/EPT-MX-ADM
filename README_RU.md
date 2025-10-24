@@ -1,4 +1,4 @@
-# EPT-MX-ADM v1.0.0
+# EPT-MX-ADM v1.0.1
 
 [![PyPI version](https://badge.fury.io/py/ept-mx-adm.svg)](https://badge.fury.io/py/ept-mx-adm)
 [![Python](https://img.shields.io/pypi/pyversions/ept-mx-adm.svg)](https://pypi.org/project/ept-mx-adm/)
@@ -16,6 +16,8 @@
 **Веб-панель администрирования для Matrix Synapse сервера**
 
 Универсальный инструмент администрирования, работающий с ЛЮБЫМ Matrix сервером - локальным, удаленным, облачным или самостоятельно размещенным. Требуются только учетные данные администратора.
+
+![Страница входа с функциями безопасности](screenshots/login_security.png)
 
 ---
 

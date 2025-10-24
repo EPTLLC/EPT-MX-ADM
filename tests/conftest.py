@@ -21,11 +21,22 @@ class TestConfig(Config):
 @pytest.fixture
 def app():
     """Create test Flask application"""
-    app = create_app(TestConfig)
+    # Set test environment variables
+    os.environ['FLASK_SECRET_KEY'] = 'test-secret-key-for-testing-32chars'
+    os.environ['EPT_DISABLE_SSL_VERIFY'] = 'true'
+    
+    app = create_app()  # No arguments - create_app() doesn't take config
     app.config['TESTING'] = True
+    app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF for most tests
     
     with app.app_context():
         yield app
+    
+    # Cleanup
+    if 'FLASK_SECRET_KEY' in os.environ:
+        del os.environ['FLASK_SECRET_KEY']
+    if 'EPT_DISABLE_SSL_VERIFY' in os.environ:
+        del os.environ['EPT_DISABLE_SSL_VERIFY']
 
 
 @pytest.fixture

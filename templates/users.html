@@ -155,7 +155,8 @@ Telegram: https://t.me/EasyProTech
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
-                            <form method="POST" action="{{ url_for('users.deactivate_user', user_id=user.name) }}">
+                            <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> action="{{ url_for('users.deactivate_user', user_id=user.name) }}">
                                 <button type="submit" class="dropdown-item text-warning" onclick="return confirm('Deactivate user {{ user.name }}?')">
                                     <i class="bi bi-pause-circle me-2"></i>{{ t('users.deactivate') }}
                                 </button>
@@ -163,7 +164,8 @@ Telegram: https://t.me/EasyProTech
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                            <form method="POST" action="{{ url_for('users.delete_user', user_id=user.name) }}">
+                            <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> action="{{ url_for('users.delete_user', user_id=user.name) }}">
                                 <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Delete user {{ user.name }}? This action cannot be undone!')">
                                     <i class="bi bi-trash me-2"></i>{{ t('users.delete') }}
                                 </button>
@@ -289,7 +291,8 @@ Telegram: https://t.me/EasyProTech
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="{{ url_for('users.import_users') }}" enctype="multipart/form-data">
+            <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> action="{{ url_for('users.import_users') }}" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="csv_file" class="form-label">{{ t('users.choose_file') }}</label>
