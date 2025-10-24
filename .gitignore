@@ -49,7 +49,6 @@ build/
 
 # Screenshots/screen captures
 screen/
-screenshots/
 
 # Local config overrides
 config.local.json
