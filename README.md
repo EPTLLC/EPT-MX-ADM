@@ -285,15 +285,13 @@ The main configuration file is `config.json` in the project root.
 **Default Configuration:**
 ```json
 {
-  "matrix_server": "https://matrix.example.com",
+  "matrix_server": "",
   "app": {
-    "host": "127.0.0.1",
+    "host": "0.0.0.0",
     "port": 5000,
     "debug": true
   },
-  "session": {
-    "secret_key": "your-secret-key-here-change-this"
-  }
+  "language": "en"
 }
 ```
 
@@ -301,18 +299,34 @@ The main configuration file is `config.json` in the project root.
 
 | Parameter | Description | Default | Required |
 |-----------|-------------|---------|----------|
-| `matrix_server` | Your Matrix Synapse server URL (can be changed at login) | `https://matrix.example.com` | No |
-| `app.host` | Application host | `127.0.0.1` | Yes |
+| `matrix_server` | Default Matrix server URL (can be changed at login) | `""` | No |
+| `app.host` | Application host | `0.0.0.0` | Yes |
 | `app.port` | Application port | `5000` | Yes |
-| `app.debug` | Debug mode (disable in production) | `true` | Yes |
-| `session.secret_key` | Flask session secret key (change in production) | Generated | Yes |
+| `app.debug` | Debug mode (disable in production!) | `true` | Yes |
+| `language` | Default interface language | `en` | Yes |
+
+### Environment Variables (v1.0.1+)
+
+**Required for Production:**
+
+| Variable | Description | Example | Default |
+|----------|-------------|---------|---------|
+| `FLASK_SECRET_KEY` | Session encryption key (min 32 chars) | `your-secret-key-here` | Auto-generated in debug |
+
+**Optional (Security):**
+
+| Variable | Description | Example | Default |
+|----------|-------------|---------|---------|
+| `EPT_DISABLE_SSL_VERIFY` | Disable SSL verification (dev only!) | `true` | `false` |
+| `EPT_CA_BUNDLE` | Path to CA bundle for custom certificates | `/path/to/ca.crt` | System default |
 
 ### Important Notes
 
-1. **Matrix Server**: The `matrix_server` in config.json is optional - you can specify any server at login
-2. **Secret Key**: Change `session.secret_key` in production to a random string
+1. **Matrix Server**: The `matrix_server` in config.json is optional - specify any server at login
+2. **Secret Key**: `FLASK_SECRET_KEY` environment variable is REQUIRED in production (min 32 characters)
 3. **Debug Mode**: Set `app.debug` to `false` in production
-4. **SSL Certificates**: Self-signed certificates are automatically supported
+4. **SSL Verification**: Enabled by default in v1.0.1+ for security
+5. **Self-Signed Certificates**: Use `EPT_CA_BUNDLE` or `EPT_DISABLE_SSL_VERIFY=true` (dev only)
 
 ---
 
@@ -513,16 +527,59 @@ EPT-MX-ADM supports multiple languages out of the box.
 
 ## Production Deployment
 
-### Security Checklist
+### Security Checklist (v1.0.1+)
 
-- [ ] Change `session.secret_key` in config.json to a random string
+**Critical (Required):**
+- [ ] Set `FLASK_SECRET_KEY` environment variable (min 32 chars, use `secrets.token_hex(32)`)
 - [ ] Set `app.debug` to `false` in config.json
-- [ ] Use strong passwords for admin accounts
-- [ ] Enable HTTPS (use nginx or Apache as reverse proxy)
-- [ ] Restrict access to the application (firewall, VPN)
-- [ ] Keep Python and dependencies up to date
-- [ ] Regular backups of config.json
-- [ ] Monitor logs for suspicious activity
+- [ ] Enable SSL verification (`EPT_DISABLE_SSL_VERIFY=false` or unset)
+- [ ] Use HTTPS only (via reverse proxy with valid certificates)
+- [ ] Verify CSRF protection is enabled (default in v1.0.1+)
+- [ ] Verify rate limiting is active (5 login attempts per minute)
+
+**High Priority:**
+- [ ] Use strong, unique passwords for all admin accounts
+- [ ] Restrict network access (firewall, VPN, IP whitelist)
+- [ ] Enable security headers (X-Frame-Options, CSP, HSTS) via reverse proxy
+- [ ] Set up centralized logging and monitoring
+- [ ] Configure log retention and rotation
+- [ ] Keep Python and all dependencies up to date
+- [ ] Enable Dependabot or automated security scanning
+
+**Recommended:**
+- [ ] Use systemd service with non-root user
+- [ ] Regular automated backups of config.json and application data
+- [ ] Monitor for suspicious activity and failed login attempts
+- [ ] Implement intrusion detection/prevention (fail2ban, OSSEC)
+- [ ] Run vulnerability scans (bandit, pip-audit) regularly
+- [ ] Document incident response procedures
+- [ ] Set up SSL/TLS certificate auto-renewal (Let's Encrypt)
+
+### Environment Setup
+
+**Generate SECRET_KEY:**
+```bash
+python3 -c 'import secrets; print(secrets.token_hex(32))'
+```
+
+**Set Environment Variables:**
+```bash
+# Required for production
+export FLASK_SECRET_KEY="your-generated-secret-key-here"
+
+# Optional: For custom CA certificates
+export EPT_CA_BUNDLE="/path/to/your/ca-bundle.crt"
+
+# NEVER set this in production:
+# export EPT_DISABLE_SSL_VERIFY=true
+```
+
+**systemd Service with Environment:**
+```ini
+[Service]
+Environment="FLASK_SECRET_KEY=your-secret-key-here"
+Environment="EPT_CA_BUNDLE=/path/to/ca-bundle.crt"
+```
 
 ### Nginx Configuration Example
 
@@ -543,12 +600,38 @@ server {
     ssl_certificate /path/to/cert.pem;
     ssl_certificate_key /path/to/key.pem;
     
+    # Modern SSL configuration
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    
     # Security headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;" always;
+    
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
     
     location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+    
+    # Apply rate limiting to login
+    location /login {
+        limit_req zone=login burst=3 nodelay;
         proxy_pass http://127.0.0.1:5000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -596,9 +679,11 @@ server {
 - Check firewall rules
 
 #### "SSL: CERTIFICATE_VERIFY_FAILED" error
-**Solution:**
-- EPT-MX-ADM automatically handles self-signed certificates
-- If error persists, verify server URL starts with `https://`
+**Solution (v1.0.1+):**
+- SSL verification is enabled by default for security
+- For development with self-signed certificates: `export EPT_DISABLE_SSL_VERIFY=true`
+- For production with custom CA: `export EPT_CA_BUNDLE=/path/to/ca-bundle.crt`
+- For production: use valid SSL certificates via reverse proxy
 - Check if Matrix server certificate is properly configured
 
 #### "Invalid credentials" or "Not an admin"
@@ -640,26 +725,75 @@ server {
 
 ## Security
 
+### Security Features (v1.0.1+)
+
+EPT-MX-ADM v1.0.1 includes comprehensive security hardening:
+
+**Authentication & Session:**
+- CSRF protection on all POST/PUT/DELETE requests
+- Rate limiting (5 login attempts per minute per IP)
+- Secure session cookies (HttpOnly, Secure, SameSite)
+- Required SECRET_KEY (min 32 bytes, env variable only)
+- Admin privilege verification via Matrix API
+
+**Network Security:**
+- SSL/TLS verification enabled by default
+- Support for custom CA bundles
+- Security headers (X-Frame-Options, CSP, HSTS, etc.)
+- Input sanitization and validation
+
+**Monitoring & Logging:**
+- All admin actions logged with IP addresses
+- Failed login attempt tracking
+- No sensitive data (passwords/tokens) in logs
+- Configurable log retention
+
+**Development:**
+- Pre-commit hooks for secret detection
+- Automated dependency vulnerability scanning
+- Static security analysis (Bandit)
+- Comprehensive security test suite
+
 ### Best Practices
 
-1. **Passwords**: Use strong, unique passwords for admin accounts
-2. **Session Secret**: Change `session.secret_key` to a random string
-3. **Debug Mode**: Disable debug mode in production
-4. **HTTPS**: Always use HTTPS in production (via reverse proxy)
-5. **Access Control**: Restrict access to the application via firewall or VPN
-6. **Updates**: Keep Python, Flask, and all dependencies up to date
-7. **Logs**: Monitor application and server logs regularly
-8. **Backups**: Regular backups of configuration and data
+1. **Environment Variables**: Use `FLASK_SECRET_KEY` env variable, never hardcode secrets
+2. **SSL/TLS**: Enable verification in production, use `EPT_CA_BUNDLE` for custom CAs
+3. **Passwords**: Enforce strong, unique passwords for all admin accounts
+4. **Debug Mode**: Always set `app.debug=false` in production
+5. **HTTPS**: Use HTTPS only via reverse proxy with valid certificates
+6. **Access Control**: Restrict network access (firewall, VPN, IP whitelist)
+7. **Updates**: Keep Python, Flask, and dependencies up to date (use Dependabot)
+8. **Monitoring**: Enable centralized logging and monitor for suspicious activity
+9. **Backups**: Regular automated backups of config and application data
+10. **Security Scanning**: Run `bandit` and `pip-audit` regularly
 
-### SSL/TLS Support
+### SSL/TLS Configuration
 
-EPT-MX-ADM automatically:
-- Supports self-signed SSL certificates
-- Disables SSL verification for local/development servers
-- Adds `https://` to server URLs if not present
-- Suppresses SSL warnings in logs
+**Production (Recommended):**
+```bash
+# Use system CA bundle (default, most secure)
+unset EPT_DISABLE_SSL_VERIFY
+unset EPT_CA_BUNDLE
+```
 
-For production, always use valid SSL certificates via reverse proxy.
+**Custom CA Certificates:**
+```bash
+# For internal/corporate CAs
+export EPT_CA_BUNDLE="/path/to/your/ca-bundle.crt"
+```
+
+**Development Only (NOT for production):**
+```bash
+# ONLY for development with self-signed certificates
+export EPT_DISABLE_SSL_VERIFY=true
+```
+
+### Security Documentation
+
+For comprehensive security information, see:
+- [SECURITY.md](SECURITY.md) - Security policy and vulnerability reporting
+- [DOCKER.md](DOCKER.md) - Secure Docker deployment
+- [CHANGELOG.md](CHANGELOG.md) - Security fixes and updates
 
 ---
 
@@ -729,7 +863,7 @@ With the following conditions:
 ## Project Information
 
 - **Project Name**: EPT-MX-ADM
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Production Ready
 - **PyPI**: [pypi.org/project/ept-mx-adm](https://pypi.org/project/ept-mx-adm/)
 - **Company**: EasyProTech LLC

@@ -427,7 +427,7 @@ EPT-MX-ADM автоматически:
 ## Информация о проекте
 
 - **Название проекта**: EPT-MX-ADM
-- **Версия**: 1.0.0
+- **Версия**: 1.0.1
 - **Статус**: Готов к продакшену
 - **PyPI**: [pypi.org/project/ept-mx-adm](https://pypi.org/project/ept-mx-adm/)
 - **Компания**: EasyProTech LLC
