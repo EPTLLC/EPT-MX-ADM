@@ -7,4 +7,4 @@ gunicorn==23.0.0
 psutil==6.1.1
 urllib3==2.5.0
 certifi==2024.8.30
-Flask-Limiter==3.8.0
+Flask-Limiter==3.11.0
