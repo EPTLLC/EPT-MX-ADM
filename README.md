@@ -1,3 +1,24 @@
+<div align="center">
+
+# PROJECT NO LONGER MAINTAINED
+
+## **Development has been discontinued**
+
+**This project is no longer actively developed or maintained.**
+
+### **Migration Notice**
+
+We are building the **Matrix.Family ecosystem** — a comprehensive Matrix ecosystem that includes web client, Matrix server, administration panel, and other components.
+
+**The new universal Matrix administration panel is located at:**  
+**[https://github.com/EPTLLC/Matrix-Family-Admin](https://github.com/EPTLLC/Matrix-Family-Admin)**
+
+All future development, updates, and support for the Matrix administration panel will be provided in the new repository as part of the Matrix.Family ecosystem.
+
+---
+
+</div>
+
 # EPT-MX-ADM v1.0.1
 
 [![PyPI version](https://img.shields.io/pypi/v/ept-mx-adm)](https://pypi.org/project/ept-mx-adm/)
